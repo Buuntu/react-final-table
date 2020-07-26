@@ -15,6 +15,11 @@ jobs:
 
       - name: Install Modules
         run: npm i
+      
+      - name: Prettier Action
+        uses: creyD/prettier_action@v3.0
+        with:
+          dry: true
 
       - name: Run Jest
         run: npm run test
