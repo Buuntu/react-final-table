@@ -1,32 +1,47 @@
 {
-  "name": "react-final-table",
-  "version": "1.0.0",
-  "author": "",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "build": "tsc",
-    "test": "jest --watch",
-    "test-ci": "jest --ci"
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Gabriel Abud",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
   },
-  "keywords": [],
-  "license": "ISC",
-  "devDependencies": {
-    "@babel/preset-env": "^7.10.4",
-    "@types/jest": "^26.0.7",
-    "husky": "^4.2.5",
-    "jest": "^26.1.0",
-    "lint-staged": "^10.2.11",
-    "prettier": "^2.0.5",
-    "ts-jest": "^26.1.3",
-    "typescript": "^3.9.7"
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build"
+  },
+  "peerDependencies": {
+    "react": ">=16"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "tsdx lint"
     }
   },
-  "lint-staged": {
-    "*.{js,css,md}": "prettier --write"
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "react-final-table",
+  "module": "dist/react-final-table.esm.js",
+  "devDependencies": {
+    "@types/react": "^16.9.43",
+    "@types/react-dom": "^16.9.8",
+    "husky": "^4.2.5",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "tsdx": "^0.13.2",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.7"
   }
 }

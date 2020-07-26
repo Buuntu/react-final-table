@@ -1,6 +1,7 @@
 # React Final Table
 
-A headless UI library for displaying tables in React.
+A headless UI for React tables, inspired by react-table but with Typescript
+support built in.
 
 ## Test
 
@@ -8,12 +9,6 @@ A headless UI library for displaying tables in React.
 npm run test
 ```
 
-## Publish
-
-```bash
-npm publish
-```
-
 ## Contributing
 
-Contributing is welcome!. Please submit PRs following the git fork workflow.
+Contributing is welcome!  Submit pull requests using the git forking workflow.
