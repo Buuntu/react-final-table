@@ -1,25 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useReducer } from 'react';
+import { UseTableType, RowType, TableState, TableAction } from 'types';
 
-export type ColumnType = {
-  name: string;
-  label: string;
+const reducer = (state: TableState, action: TableAction): TableState => {
+  switch (action.type) {
+    case 'SET_ROW_DATA':
+      return state;
+    case 'SORT':
+      return state;
+    default:
+      return state;
+  }
 };
-
-export type RowType = {
-  cells: CellType[];
-};
-
-export type CellType = {
-  value: any;
-};
-
-export type UseTableType = (
-  columns: ColumnType[],
-  data: Object[]
-) => { headers: ColumnType[]; rows: RowType[] };
 
 export const useTable: UseTableType = (columns, data) => {
-  const [tableCols] = useState(columns);
   const tableData: RowType[] = useMemo(() => {
     const sortedData = data.map((row: any) => {
       const newRow: any = {};
@@ -44,10 +37,10 @@ export const useTable: UseTableType = (columns, data) => {
     });
   }, [data]);
 
-  const [rows] = useState(tableData);
+  const [state] = useReducer(reducer, { columns: columns, rows: tableData });
 
   return {
-    headers: tableCols,
-    rows,
+    headers: state.columns,
+    rows: state.rows,
   };
 };

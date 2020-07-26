@@ -1,7 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { useTable, ColumnType } from '../hooks';
+import { useTable } from '../hooks';
+import { ColumnType } from '../types';
 
 const columns = [
   {
