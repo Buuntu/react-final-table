@@ -26,15 +26,11 @@
       "pre-commit": "tsdx lint"
     }
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
   "name": "react-final-table",
   "module": "dist/react-final-table.esm.js",
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.1",
+    "@testing-library/react": "^10.4.7",
     "@types/react": "^16.9.43",
     "@types/react-dom": "^16.9.8",
     "husky": "^4.2.5",
