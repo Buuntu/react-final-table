@@ -13,29 +13,58 @@ npm install react-final-table
 
 ### useTable
 
-```jsx
-const { headers, rows } = useTable(columns, data);
+### Basic example:
 
-return (
-  <table>
-    <thead>
-      <tr>
-        {headers.map((header, idx) => (
-          <th key={idx}>{header.label}</th>
-        ))}
-      </tr>
-    </thead>
-    <tbody>
-      {rows.map((row, idx) => (
-        <tr key={idx}>
-          {row.cells.map((cell, idx) => (
-            <td key={idx}>{cell.value}</td>
+```tsx
+import { useTable, ColumnType[] } from 'react-final-table';
+
+const columns: ColumnType[] = [
+  {
+    name: 'firstName',
+    label: 'First Name',
+    render: ({value}) => <h1>{value}</h1> // optional
+  },
+  {
+    name: 'lastName',
+    label: 'Last Name',
+  },
+];
+
+const data = [
+  {
+    firstName: 'Frodo',
+    lastName: 'Baggins',
+  },
+  {
+    firstName: 'Samwise',
+    lastName: 'Gamgee',
+  },
+];
+
+const MyTable = () => {
+  const { headers, rows } = useTable(columns, data);
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, idx) => (
+            <th key={idx}>{header.label}</th>
           ))}
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+      <tbody>
+        {rows.map((row, idx) => (
+          <tr key={idx}>
+            {row.cells.map((cell, idx) => (
+              <td key={idx}>{cell.render()}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 ```
 
 ## Test

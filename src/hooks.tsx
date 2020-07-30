@@ -1,36 +1,32 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useReducer } from 'react';
+import {
+  UseTableType,
+  RowType,
+  TableState,
+  TableAction,
+  ColumnType,
+  ColumnByIdType,
+  ColumnByIdsType,
+} from 'types';
 
-export type ColumnType = {
-  name: string;
-  label: string;
+const reducer = (state: TableState, action: TableAction): TableState => {
+  switch (action.type) {
+    case 'SET_ROW_DATA':
+      return state;
+    case 'SORT':
+      return state;
+    default:
+      return state;
+  }
 };
-
-export type RowType = {
-  cells: CellType[];
-};
-
-export type CellType = {
-  value: any;
-};
-
-export type UseTableType = (
-  columns: ColumnType[],
-  data: Object[]
-) => { headers: ColumnType[]; rows: RowType[] };
 
 export const useTable: UseTableType = (columns, data) => {
-  const [tableCols] = useState(columns);
+  const columnsById: ColumnByIdsType = useMemo(() => getColumnsById(columns), [
+    columns,
+  ]);
+
   const tableData: RowType[] = useMemo(() => {
-    const sortedData = data.map((row: any) => {
-      const newRow: any = {};
-      columns.forEach(column => {
-        if (!(column.name in row)) {
-          throw new Error(`Invalid row data, ${column.name} not found`);
-        }
-        newRow[column.name] = row[column.name];
-      });
-      return newRow;
-    });
+    const sortedData = sortDataInOrder(data, columns);
 
     return sortedData.map(row => {
       return {
@@ -38,16 +34,53 @@ export const useTable: UseTableType = (columns, data) => {
           return {
             field: column,
             value: value,
+            render: makeRender(value, columnsById[column], row),
           };
         }),
       };
     });
-  }, [data]);
+  }, [data, columns]);
 
-  const [rows] = useState(tableData);
+  const [state] = useReducer(reducer, { columns: columns, rows: tableData });
 
   return {
-    headers: tableCols,
-    rows,
+    headers: state.columns,
+    rows: state.rows,
+    reducer,
   };
+};
+
+const makeRender = (value: any, column: ColumnByIdType, row: Object) => {
+  if (column.render) {
+    return () => column.render({ row, value });
+  }
+  return () => value;
+};
+
+const sortDataInOrder = (data: Object[], columns: ColumnType[]): Object[] => {
+  return data.map((row: any) => {
+    const newRow: any = {};
+    columns.forEach(column => {
+      if (!(column.name in row)) {
+        throw new Error(`Invalid row data, ${column.name} not found`);
+      }
+      newRow[column.name] = row[column.name];
+    });
+    return newRow;
+  });
+};
+
+const getColumnsById = (columns: ColumnType[]): ColumnByIdsType => {
+  const columnsById: ColumnByIdsType = {};
+  columns.forEach(column => {
+    const col: any = {
+      label: column.label,
+    };
+    if (column.render) {
+      col['render'] = column.render;
+    }
+    columnsById[column.name] = col;
+  });
+
+  return columnsById;
 };
