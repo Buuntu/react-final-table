@@ -1,6 +1,22 @@
 export type ColumnType = {
   name: string;
   label: string;
+  render?: (value: any) => React.ReactNode;
+};
+
+export type ColumnByIdsType = {
+  [key: string]: ColumnByIdType;
+};
+
+export type ColumnByIdType = {
+  label: string;
+  render: ({
+    value,
+    row,
+  }: {
+    value: any;
+    row: Object;
+  }) => React.ReactNode | undefined;
 };
 
 export type RowType = {
@@ -9,6 +25,7 @@ export type RowType = {
 
 export type CellType = {
   value: any;
+  render: () => React.ReactNode;
 };
 
 export type UseTableType = (

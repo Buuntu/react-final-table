@@ -48,7 +48,7 @@ const Table = ({
         {rows.map((row, idx) => (
           <tr key={idx}>
             {row.cells.map((cell, idx) => (
-              <td key={idx}>{cell.value}</td>
+              <td key={idx}>{cell.render()}</td>
             ))}
           </tr>
         ))}
@@ -82,4 +82,22 @@ test('Should be equal regardless of field order in data', () => {
   const reverseTl = render(<Table columns={columns} data={reverseData} />);
 
   expect(normalTl.asFragment()).toEqual(reverseTl.asFragment());
+});
+
+const columnsWithRender: ColumnType[] = [
+  {
+    name: 'firstName',
+    label: 'First Name',
+    render: ({ value }) => <h1 data-testid="first-name">{value}</h1>,
+  },
+  {
+    name: 'lastName',
+    label: 'Last Name',
+  },
+];
+
+test('Should see custom render HTML', () => {
+  const rtl = render(<Table columns={columnsWithRender} data={data} />);
+
+  expect(rtl.getAllByTestId('first-name')).toHaveLength(2);
 });
