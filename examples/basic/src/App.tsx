@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTable } from 'react-final-table';
 
 const columns = [
   {
     name: 'first_name',
     label: 'First Name',
+    render: ({ value }: { value: string }) => (
+      <>
+        <span role="img" aria-label="mage">
+          🧙
+        </span>
+        {value}
+      </>
+    ),
   },
   {
     name: 'last_name',
@@ -24,27 +32,50 @@ const data = [
 ];
 
 function App() {
-  const { headers, rows } = useTable(columns, data);
+  const memoColumns = useMemo(() => columns, []);
+  const memoData = useMemo(() => data, []);
+
+  const { headers, rows, selectRow, selectedRows } = useTable(
+    memoColumns,
+    memoData,
+    {
+      selectable: true,
+    }
+  );
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, idx) => (
-            <th key={idx}>{header.label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, idx) => (
-          <tr key={idx}>
-            {row.cells.map((cell, idx) => (
-              <td key={idx}>{cell.value}</td>
+    <>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            {headers.map((header, idx) => (
+              <th key={idx}>{header.label}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => (
+            <tr key={idx}>
+              <td>
+                <input
+                  type="checkbox"
+                  onChange={() => {
+                    selectRow(row.id);
+                  }}
+                />
+              </td>
+              {row.cells.map((cell, idx) => (
+                <td key={idx}>{cell.render()}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <pre>
+        <code>{JSON.stringify(selectedRows)}</code>
+      </pre>
+    </>
   );
 }
 

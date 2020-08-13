@@ -1,13 +1,13 @@
-import { useMemo, useReducer } from 'react';
+import { useMemo, useReducer, useEffect } from 'react';
+
 import {
   UseTableType,
-  RowType,
-  TableState,
-  TableAction,
-  ColumnType,
   ColumnByIdType,
   ColumnByIdsType,
-} from 'types';
+  ColumnType,
+  TableState,
+  TableAction,
+} from './types';
 
 const reducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -15,38 +15,132 @@ const reducer = (state: TableState, action: TableAction): TableState => {
       return state;
     case 'SORT':
       return state;
+    case 'GLOBAL_FILTER':
+      const newState = {
+        ...state,
+        filteredRows: action.filter(state.rows),
+        filterOn: true,
+      };
+      return newState;
+    case 'GLOBAL_FILTER_OFF':
+      return {
+        ...state,
+        filterOn: false,
+        toggleAllState: false,
+        filteredRows: [...state.rows],
+      };
+    case 'SELECT_ROW':
+      const stateCopy = { ...state };
+      stateCopy.rows = stateCopy.rows.map(row => {
+        const newRow = { ...row };
+        if (newRow.id === action.rowId) {
+          newRow.selected = !newRow.selected;
+        }
+        return newRow;
+      });
+
+      stateCopy.selectedRows = stateCopy.rows.filter(
+        row => row.selected === true
+      );
+
+      if (stateCopy.selectedRows.length === stateCopy.rows.length) {
+        stateCopy.toggleAllState = true;
+      } else {
+        stateCopy.toggleAllState = false;
+      }
+
+      return stateCopy;
+    case 'TOGGLE_ALL':
+      const stateCopyToggle = { ...state };
+      // toggle all on
+      if (state.selectedRows.length < state.rows.length) {
+        if (state.filterOn) {
+        }
+        stateCopyToggle.rows.map(row => {
+          row.selected = true;
+          return row;
+        });
+        stateCopyToggle.toggleAllState = true;
+      }
+      // otherwise toggle off
+      else {
+        stateCopyToggle.rows.map(row => {
+          row.selected = false;
+          return row;
+        });
+        stateCopyToggle.toggleAllState = false;
+      }
+      stateCopyToggle.selectedRows = stateCopyToggle.rows.filter(
+        row => row.selected
+      );
+
+      return stateCopyToggle;
     default:
       return state;
   }
 };
 
-export const useTable: UseTableType = (columns, data) => {
+export const useTable: UseTableType = (columns, data, options) => {
   const columnsById: ColumnByIdsType = useMemo(() => getColumnsById(columns), [
     columns,
   ]);
 
-  const tableData: RowType[] = useMemo(() => {
+  const tableData = useMemo(() => {
+    // to allow for empty data sets
+    if (!data) {
+      return [];
+    }
+
     const sortedData = sortDataInOrder(data, columns);
 
-    return sortedData.map(row => {
+    const newData = sortedData.map((row, idx) => {
       return {
-        cells: Object.entries(row).map(([column, value]) => {
-          return {
-            field: column,
-            value: value,
-            render: makeRender(value, columnsById[column], row),
-          };
-        }),
+        id: idx,
+        selected: false,
+        hidden: false,
+        original: row,
+        cells: Object.entries(row)
+          .map(([column, value]) => {
+            return {
+              hidden: columnsById[column].hidden,
+              field: column,
+              value: value,
+              render: makeRender(value, columnsById[column], row),
+            };
+          })
+          .filter(cell => !cell.hidden),
       };
     });
-  }, [data, columns]);
+    return newData;
+  }, [data, columns, columnsById]);
 
-  const [state] = useReducer(reducer, { columns: columns, rows: tableData });
+  const [state, dispatch] = useReducer(reducer, {
+    columns: columns,
+    rows: tableData,
+    selectedRows: [],
+    filteredRows: [],
+    toggleAllState: false,
+    filterOn: false,
+  });
+
+  useEffect(() => {
+    if (options && options.filterOn && options.filter) {
+      dispatch({ type: 'GLOBAL_FILTER', filter: options.filter });
+    } else if (options && !options.filterOn) {
+      dispatch({ type: 'GLOBAL_FILTER_OFF' });
+    }
+    // eslint-disable-next-line
+  }, [options?.filterOn, options?.filter]);
 
   return {
-    headers: state.columns,
+    headers: state.columns.filter(column => !column.hidden),
     rows: state.rows,
+    selectedRows: state.selectedRows,
+    filteredRows: state.filteredRows,
     reducer,
+    selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
+    toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
+    toggleAllState: state.toggleAllState,
   };
 };
 
@@ -79,6 +173,7 @@ const getColumnsById = (columns: ColumnType[]): ColumnByIdsType => {
     if (column.render) {
       col['render'] = column.render;
     }
+    col['hidden'] = column.hidden;
     columnsById[column.name] = col;
   });
 
