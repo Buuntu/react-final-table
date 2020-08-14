@@ -59,24 +59,26 @@ export interface UseTableTypeParams<T extends {}> {
     filterOn?: boolean;
   };
 }
-export type UseTableType = (
-  columns: ColumnType[],
-  data: Object[],
-  options?: {
-    sortable?: boolean;
-    selectable?: boolean;
-    filter?: (row: RowType[]) => RowType[];
-  }
-) => {
-  headers: HeaderType[];
-  originalRows: RowType[];
-  rows: RowType[];
-  selectedRows: RowType[];
-  toggleSort: (columnName: string) => void;
-  selectRow: (id: number) => void;
-  toggleAll: () => void;
-  toggleAllState: boolean;
-};
+export interface UseTableType {
+  <T extends { [key: string]: any }>(
+    columns: ColumnType[],
+    data: T[],
+    options?: {
+      sortable?: boolean;
+      selectable?: boolean;
+      filter?: (row: RowType[]) => RowType[];
+    }
+  ): {
+    headers: HeaderType[];
+    originalRows: RowType[];
+    rows: RowType[];
+    selectedRows: RowType[];
+    toggleSort: (columnName: string) => void;
+    selectRow: (id: number) => void;
+    toggleAll: () => void;
+    toggleAllState: boolean;
+  };
+}
 
 export type TableState = {
   columnsById: ColumnByIdsType;

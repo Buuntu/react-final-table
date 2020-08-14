@@ -8,6 +8,7 @@ import {
   TableState,
   TableAction,
 } from './types';
+import { byTextAscending, byTextDescending } from './utils';
 
 const reducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
@@ -16,8 +17,11 @@ const reducer = (state: TableState, action: TableAction): TableState => {
         throw new Error(`Invalid column, ${action.columnName} not found`);
       }
 
+      let isAscending = null;
+
       const columnCopy = state.columns.map(column => {
         if (action.columnName === column.name) {
+          isAscending = column.sorted.asc;
           return {
             ...column,
             sorted: {
@@ -38,6 +42,13 @@ const reducer = (state: TableState, action: TableAction): TableState => {
       return {
         ...state,
         columns: columnCopy,
+        rows: state.rows.sort(
+          isAscending
+            ? // @ts-ignore
+              byTextAscending(object => object.original[action.columnName])
+            : // @ts-ignore
+              byTextDescending(object => object.original[action.columnName])
+        ),
         columnsById: getColumnsById(columnCopy),
       };
     case 'GLOBAL_FILTER':

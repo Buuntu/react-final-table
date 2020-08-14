@@ -32,9 +32,12 @@ const Table = ({
   data,
 }: {
   columns: ColumnType[];
-  data: Object[];
+  data: { firstName: string; lastName: string }[];
 }) => {
-  const { headers, rows } = useTable(columns, data);
+  const { headers, rows } = useTable<{ firstName: string; lastName: string }>(
+    columns,
+    data
+  );
 
   return (
     <table>

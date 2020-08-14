@@ -1,19 +1,29 @@
-// export const compare = <T extends {[key: string]: value: any}>(a: T[], b: T[], column: string) => {
-//   // Use toUpperCase() to ignore character casing
-//   if (!(column in a) || !(column in b)) {
-//     throw new Error('Invalid column');
-//   }
+export const byTextAscending = <T>(getTextProperty: (object: T) => String) => (
+  objectA: T,
+  objectB: T
+) => {
+  const upperA = getTextProperty(objectA).toUpperCase();
+  const upperB = getTextProperty(objectB).toUpperCase();
+  if (upperA < upperB) {
+    return -1;
+  }
+  if (upperA > upperB) {
+    return 1;
+  }
+  return 0;
+};
 
-//   if (column in a && column in b) {
-//     const bandA = new String(a[column]).toUpperCase();
-//     const bandB = b[column].toUpperCase();
-//   }
-
-//   let comparison = 0;
-//   if (bandA > bandB) {
-//     comparison = 1;
-//   } else if (bandA < bandB) {
-//     comparison = -1;
-//   }
-//   return comparison;
-// };
+export const byTextDescending = <T>(getTextProperty: (object: T) => String) => (
+  objectA: T,
+  objectB: T
+) => {
+  const upperA = getTextProperty(objectA).toUpperCase();
+  const upperB = getTextProperty(objectB).toUpperCase();
+  if (upperA > upperB) {
+    return -1;
+  }
+  if (upperA < upperB) {
+    return 1;
+  }
+  return 0;
+};
