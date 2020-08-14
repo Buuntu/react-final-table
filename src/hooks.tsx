@@ -11,8 +11,35 @@ import {
 
 const reducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
-    case 'SORT':
-      return state;
+    case 'TOGGLE_SORT':
+      if (!(action.columnName in state.columnsById)) {
+        throw new Error(`Invalid column, ${action.columnName} not found`);
+      }
+
+      const columnCopy = state.columns.map(column => {
+        if (action.columnName === column.name) {
+          return {
+            ...column,
+            sorted: {
+              on: true,
+              asc: !column.sorted.asc,
+            },
+          };
+        }
+        return {
+          ...column,
+          sorted: {
+            on: false,
+            asc: true,
+          },
+        };
+      });
+
+      return {
+        ...state,
+        columns: columnCopy,
+        columnsById: getColumnsById(columnCopy),
+      };
     case 'GLOBAL_FILTER':
       const filteredRows = action.filter(state.originalRows);
       const selectedRowsById: { [key: number]: boolean } = {};
@@ -113,12 +140,26 @@ const reducer = (state: TableState, action: TableAction): TableState => {
 };
 
 export const useTable: UseTableType = (columns, data, options) => {
-  const columnsById: ColumnByIdsType = useMemo(() => getColumnsById(columns), [
-    columns,
-  ]);
+  const columnsWithSorting = useMemo(
+    () =>
+      columns.map(column => {
+        return {
+          ...column,
+          sorted: {
+            on: false,
+            asc: true,
+          },
+        };
+      }),
+    [columns]
+  );
+  const columnsById: ColumnByIdsType = useMemo(
+    () => getColumnsById(columnsWithSorting),
+    [columns]
+  );
 
   const tableData = useMemo(() => {
-    const sortedData = sortDataInOrder(data, columns);
+    const sortedData = sortDataInOrder(data, columnsWithSorting);
 
     const newData = sortedData.map((row, idx) => {
       return {
@@ -139,10 +180,11 @@ export const useTable: UseTableType = (columns, data, options) => {
       };
     });
     return newData;
-  }, [data, columns, columnsById]);
+  }, [data, columnsWithSorting, columnsById]);
 
   const [state, dispatch] = useReducer(reducer, {
-    columns: columns,
+    columns: columnsWithSorting,
+    columnsById: columnsById,
     originalRows: tableData,
     rows: tableData,
     selectedRows: [],
@@ -167,6 +209,8 @@ export const useTable: UseTableType = (columns, data, options) => {
     reducer,
     selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
+    toggleSort: (columnName: string) =>
+      dispatch({ type: 'TOGGLE_SORT', columnName }),
     toggleAllState: state.toggleAllState,
   };
 };

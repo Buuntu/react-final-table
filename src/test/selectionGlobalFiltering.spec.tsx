@@ -190,7 +190,6 @@ const TableWithFilter = ({
 }) => {
   const { headers, rows } = useTable(columns, data, {
     filter,
-    filterOn: true,
   });
 
   return (
