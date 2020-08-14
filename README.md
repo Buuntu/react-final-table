@@ -31,7 +31,6 @@ This is the main hook exposed by the library and should be your entrypoint for a
 const {
   headers,
   rows,
-  filteredRows,
   selectRow,
   selectedRows
 } = useTable(columns, data, {

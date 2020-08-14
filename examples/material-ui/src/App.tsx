@@ -9,6 +9,7 @@ import {
   Checkbox,
   Grid,
   TextField,
+  Button,
 } from '@material-ui/core';
 import { useTable, RowType } from 'react-final-table';
 
@@ -106,6 +107,25 @@ function App() {
               ))}
             </TableBody>
           </Table>
+        </TableContainer>
+        <TableContainer>
+          <TableHead>
+            <TableRow>
+              {headers.map(column => (
+                <TableCell>{column.label}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+              {selectedRows.map(row => {
+                return (<TableRow>
+                  <TableCell><Button onClick={() => selectRow(row.id)}>Deselect Row</Button></TableCell>
+                {row.cells.map(cell => {
+                  return <TableCell>{cell.render()}</TableCell>
+                })}
+                </TableRow>);
+              })}
+          </TableBody>
         </TableContainer>
         <TextField variant="outlined" label="Search..." value={searchString} onChange={(e) => setSearchString(e.target.value)} />
         <pre>
