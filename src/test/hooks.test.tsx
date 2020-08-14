@@ -3,6 +3,7 @@ import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { useTable } from '../hooks';
 import { ColumnType, RowType } from '../types';
+import { makeData } from './makeData';
 
 const columns = [
   {
@@ -187,7 +188,7 @@ const TableWithFilter = ({
   data: Object[];
   filter: (row: RowType[]) => RowType[];
 }) => {
-  const { headers, filteredRows } = useTable(columns, data, {
+  const { headers, rows } = useTable(columns, data, {
     filter,
     filterOn: true,
   });
@@ -202,7 +203,7 @@ const TableWithFilter = ({
         </tr>
       </thead>
       <tbody>
-        {filteredRows.map((row, idx) => (
+        {rows.map((row, idx) => (
           <tr data-testid="table-row" key={idx}>
             {row.cells.map((cell, idx) => (
               <td key={idx}>{cell.render()}</td>
@@ -235,29 +236,45 @@ const TableWithSelectionAndFiltering = ({
   columns: ColumnType[];
   data: Object[];
 }) => {
-  const [searchString] = useState('');
+  const [searchString, setSearchString] = useState('');
+  const [filterOn, setFilterOn] = useState(false);
 
-  const { headers, filteredRows, selectRow, selectedRows } = useTable(
-    columns,
-    data,
-    {
-      selectable: true,
-      filterOn: true,
-      filter: useCallback(
-        (rows: RowType[]) => {
-          return rows.filter(row => {
-            return row.cells.filter(value => {
-              return value.value.includes(searchString);
-            });
-          });
-        },
-        [searchString]
-      ),
-    }
-  );
+  const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
+    selectable: true,
+    filter: useCallback(
+      (rows: RowType[]) => {
+        return rows.filter(row => {
+          return (
+            row.cells.filter(cell => {
+              if (typeof cell.value !== 'string') {
+                return false;
+              }
+
+              return cell.value.toLowerCase().includes(searchString)
+                ? true
+                : false;
+            }).length > 0
+          );
+        });
+      },
+      [searchString]
+    ),
+  });
 
   return (
     <>
+      <input
+        data-testid="input"
+        type="text"
+        value={searchString}
+        onChange={e => setSearchString(e.target.value)}
+      ></input>
+      <button
+        data-testid="filter-button"
+        onClick={() => setFilterOn(!filterOn)}
+      >
+        Filter
+      </button>
       <table>
         <thead>
           <tr>
@@ -268,8 +285,8 @@ const TableWithSelectionAndFiltering = ({
           </tr>
         </thead>
         <tbody>
-          {filteredRows.map((row, idx) => (
-            <tr key={idx}>
+          {rows.map((row, idx) => (
+            <tr key={idx} data-testid="row">
               <td>
                 <input
                   type="checkbox"
@@ -301,17 +318,20 @@ const TableWithSelectionAndFiltering = ({
 };
 
 test('Should be able to select rows while filtering', async () => {
+  const { columns: userCols, data: userData } = makeData(10);
   const rtl = render(
-    <TableWithSelectionAndFiltering columns={columns} data={data} />
+    <TableWithSelectionAndFiltering columns={userCols} data={userData} />
   );
-  const checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
+  let checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
   const checkbox2 = rtl.getByTestId('checkbox-1') as HTMLInputElement;
 
+  const input = rtl.getByTestId('input');
+
   // Make sure all rows are still there
-  expect(rtl.getByText('Frodo')).toBeInTheDocument();
-  expect(rtl.getByText('Baggins')).toBeInTheDocument();
-  expect(rtl.getByText('Samwise')).toBeInTheDocument();
-  expect(rtl.getByText('Gamgee')).toBeInTheDocument();
+  expect(rtl.getByText(userData[0].firstName)).toBeInTheDocument();
+  expect(rtl.getByText(userData[0].lastName)).toBeInTheDocument();
+  expect(rtl.getByText(userData[1].firstName)).toBeInTheDocument();
+  expect(rtl.getByText(userData[1].lastName)).toBeInTheDocument();
 
   fireEvent.click(checkbox);
   expect(checkbox.checked).toEqual(true);
@@ -327,4 +347,25 @@ test('Should be able to select rows while filtering', async () => {
   fireEvent.click(checkbox2);
   expect(checkbox2.checked).toEqual(false);
   expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
+
+  // type into filter input a value that doesn't exist
+  fireEvent.change(input, { target: { value: '23' } });
+
+  expect(rtl.queryAllByTestId('row')).toHaveLength(0);
+
+  // should have one row with this name
+  fireEvent.change(input, { target: { value: 'ye' } });
+
+  expect(rtl.queryAllByTestId('row')).toHaveLength(1);
+
+  checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
+  fireEvent.click(checkbox);
+
+  expect(checkbox.checked).toEqual(true);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(1);
+
+  fireEvent.change(input, { target: { value: '' } });
+
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(1);
+  expect(rtl.queryAllByTestId('row')).toHaveLength(10);
 });

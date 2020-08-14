@@ -14,21 +14,41 @@ const reducer = (state: TableState, action: TableAction): TableState => {
     case 'SORT':
       return state;
     case 'GLOBAL_FILTER':
-      const newState = {
+      const filteredRows = action.filter(state.originalRows);
+      const selectedRowsById: { [key: number]: boolean } = {};
+      state.selectedRows.map(row => {
+        selectedRowsById[row.id] = row.selected ? true : false;
+      });
+
+      return {
         ...state,
-        filteredRows: action.filter(state.rows),
+        rows: filteredRows.map(row => {
+          return selectedRowsById[row.id]
+            ? { ...row, selected: selectedRowsById[row.id] }
+            : { ...row };
+        }),
         filterOn: true,
       };
-      return newState;
     case 'GLOBAL_FILTER_OFF':
+      const ogRows = [...state.originalRows];
+      const selRows: { [key: number]: boolean } = {};
+      state.selectedRows.map(row => {
+        selRows[row.id] = row.selected ? true : false;
+      });
+
       return {
         ...state,
         filterOn: false,
         toggleAllState: false,
-        filteredRows: [...state.rows],
+        rows: ogRows.map(row => {
+          return selRows[row.id]
+            ? { ...row, selected: selectedRowsById[row.id] }
+            : { ...row };
+        }),
       };
     case 'SELECT_ROW':
       const stateCopy = { ...state };
+
       stateCopy.rows = stateCopy.rows.map(row => {
         const newRow = { ...row };
         if (newRow.id === action.rowId) {
@@ -36,16 +56,6 @@ const reducer = (state: TableState, action: TableAction): TableState => {
         }
         return newRow;
       });
-
-      if (stateCopy.filterOn) {
-        stateCopy.filteredRows = stateCopy.filteredRows.map(row => {
-          const newRow = { ...row };
-          if (newRow.id === action.rowId) {
-            newRow.selected = !newRow.selected;
-          }
-          return newRow;
-        });
-      }
 
       stateCopy.selectedRows = stateCopy.rows.filter(
         row => row.selected === true
@@ -60,50 +70,22 @@ const reducer = (state: TableState, action: TableAction): TableState => {
       return stateCopy;
     case 'TOGGLE_ALL':
       const stateCopyToggle = { ...state };
-      // Only toggle filtered rows if filtering is on
-      if (state.filterOn) {
-        console.log('TOGGLING');
-        if (state.selectedRows.length < state.filteredRows.length) {
-          stateCopyToggle.filteredRows = stateCopyToggle.filteredRows.map(
-            row => {
-              return { ...row, selected: true };
-            }
-          );
-          stateCopyToggle.toggleAllState = true;
-        } else {
-          stateCopyToggle.filteredRows = stateCopyToggle.filteredRows.map(
-            row => {
-              return { ...row, selected: false };
-            }
-          );
-          stateCopyToggle.toggleAllState = false;
-        }
-
-        stateCopyToggle.selectedRows = stateCopyToggle.filteredRows.filter(
-          row => row.selected
-        );
-        // Otherwise toggle all rows
+      if (state.selectedRows.length < state.rows.length) {
+        stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
+          return { ...row, selected: true };
+        });
+        stateCopyToggle.toggleAllState = true;
       } else {
-        // toggle on
-        if (state.selectedRows.length < state.rows.length) {
-          stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
-            row.selected = true;
-            return row;
-          });
-          stateCopyToggle.toggleAllState = true;
-        }
-        // otherwise toggle off
-        else {
-          stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
-            return { ...row, selected: false };
-          });
-          stateCopyToggle.toggleAllState = false;
-        }
-
-        stateCopyToggle.selectedRows = stateCopyToggle.rows.filter(
-          row => row.selected
-        );
+        stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
+          return { ...row, selected: false };
+        });
+        stateCopyToggle.toggleAllState = false;
       }
+
+      stateCopyToggle.selectedRows = stateCopyToggle.rows.filter(
+        row => row.selected
+      );
+      // Otherwise toggle all rows
 
       return stateCopyToggle;
     default:
@@ -117,11 +99,6 @@ export const useTable: UseTableType = (columns, data, options) => {
   ]);
 
   const tableData = useMemo(() => {
-    // to allow for empty data sets
-    if (!data) {
-      return [];
-    }
-
     const sortedData = sortDataInOrder(data, columns);
 
     const newData = sortedData.map((row, idx) => {
@@ -147,27 +124,27 @@ export const useTable: UseTableType = (columns, data, options) => {
 
   const [state, dispatch] = useReducer(reducer, {
     columns: columns,
+    originalRows: tableData,
     rows: tableData,
     selectedRows: [],
-    filteredRows: [],
     toggleAllState: false,
     filterOn: false,
   });
 
   useEffect(() => {
-    if (options && options.filterOn && options.filter) {
+    if (options && options.filter) {
       dispatch({ type: 'GLOBAL_FILTER', filter: options.filter });
-    } else if (options && !options.filterOn) {
+    } else if (options && !options.filter) {
       dispatch({ type: 'GLOBAL_FILTER_OFF' });
     }
     // eslint-disable-next-line
-  }, [options?.filterOn, options?.filter]);
+  }, [options?.filter]);
 
   return {
     headers: state.columns.filter(column => !column.hidden),
     rows: state.rows,
+    originalRows: state.originalRows,
     selectedRows: state.selectedRows,
-    filteredRows: state.filteredRows,
     reducer,
     selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
