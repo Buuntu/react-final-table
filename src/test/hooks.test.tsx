@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { useTable } from '../hooks';
@@ -226,4 +226,105 @@ test('Should be able to filter rows', () => {
   );
 
   expect(rtl.getAllByTestId('table-row')).toHaveLength(1);
+});
+
+const TableWithSelectionAndFiltering = ({
+  columns,
+  data,
+}: {
+  columns: ColumnType[];
+  data: Object[];
+}) => {
+  const [searchString] = useState('');
+
+  const { headers, filteredRows, selectRow, selectedRows } = useTable(
+    columns,
+    data,
+    {
+      selectable: true,
+      filterOn: true,
+      filter: useCallback(
+        (rows: RowType[]) => {
+          return rows.filter(row => {
+            return row.cells.filter(value => {
+              return value.value.includes(searchString);
+            });
+          });
+        },
+        [searchString]
+      ),
+    }
+  );
+
+  return (
+    <>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            {headers.map((header, idx) => (
+              <th key={idx}>{header.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {filteredRows.map((row, idx) => (
+            <tr key={idx}>
+              <td>
+                <input
+                  type="checkbox"
+                  data-testid={`checkbox-${row.id}`}
+                  checked={row.selected}
+                  onChange={() => selectRow(row.id)}
+                ></input>
+              </td>
+              {row.cells.map((cell, idx) => (
+                <td key={idx}>{cell.render()}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <table>
+        <tbody>
+          {selectedRows.map((row, rowIdx) => (
+            <tr key={rowIdx} data-testid="selected-row">
+              {row.cells.map((cell, idx) => (
+                <td key={idx}>{cell.render()}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+};
+
+test('Should be able to select rows while filtering', async () => {
+  const rtl = render(
+    <TableWithSelectionAndFiltering columns={columns} data={data} />
+  );
+  const checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
+  const checkbox2 = rtl.getByTestId('checkbox-1') as HTMLInputElement;
+
+  // Make sure all rows are still there
+  expect(rtl.getByText('Frodo')).toBeInTheDocument();
+  expect(rtl.getByText('Baggins')).toBeInTheDocument();
+  expect(rtl.getByText('Samwise')).toBeInTheDocument();
+  expect(rtl.getByText('Gamgee')).toBeInTheDocument();
+
+  fireEvent.click(checkbox);
+  expect(checkbox.checked).toEqual(true);
+  expect(rtl.getAllByTestId('selected-row')).toHaveLength(1);
+
+  fireEvent.click(checkbox2);
+  expect(rtl.getAllByTestId('selected-row')).toHaveLength(2);
+
+  fireEvent.click(checkbox);
+  expect(checkbox.checked).toEqual(false);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(1);
+
+  fireEvent.click(checkbox2);
+  expect(checkbox2.checked).toEqual(false);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
 });

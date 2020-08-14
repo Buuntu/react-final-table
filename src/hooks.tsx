@@ -11,8 +11,6 @@ import {
 
 const reducer = (state: TableState, action: TableAction): TableState => {
   switch (action.type) {
-    case 'SET_ROW_DATA':
-      return state;
     case 'SORT':
       return state;
     case 'GLOBAL_FILTER':
@@ -39,6 +37,16 @@ const reducer = (state: TableState, action: TableAction): TableState => {
         return newRow;
       });
 
+      if (stateCopy.filterOn) {
+        stateCopy.filteredRows = stateCopy.filteredRows.map(row => {
+          const newRow = { ...row };
+          if (newRow.id === action.rowId) {
+            newRow.selected = !newRow.selected;
+          }
+          return newRow;
+        });
+      }
+
       stateCopy.selectedRows = stateCopy.rows.filter(
         row => row.selected === true
       );
@@ -52,27 +60,50 @@ const reducer = (state: TableState, action: TableAction): TableState => {
       return stateCopy;
     case 'TOGGLE_ALL':
       const stateCopyToggle = { ...state };
-      // toggle all on
-      if (state.selectedRows.length < state.rows.length) {
-        if (state.filterOn) {
+      // Only toggle filtered rows if filtering is on
+      if (state.filterOn) {
+        console.log('TOGGLING');
+        if (state.selectedRows.length < state.filteredRows.length) {
+          stateCopyToggle.filteredRows = stateCopyToggle.filteredRows.map(
+            row => {
+              return { ...row, selected: true };
+            }
+          );
+          stateCopyToggle.toggleAllState = true;
+        } else {
+          stateCopyToggle.filteredRows = stateCopyToggle.filteredRows.map(
+            row => {
+              return { ...row, selected: false };
+            }
+          );
+          stateCopyToggle.toggleAllState = false;
         }
-        stateCopyToggle.rows.map(row => {
-          row.selected = true;
-          return row;
-        });
-        stateCopyToggle.toggleAllState = true;
+
+        stateCopyToggle.selectedRows = stateCopyToggle.filteredRows.filter(
+          row => row.selected
+        );
+        // Otherwise toggle all rows
+      } else {
+        // toggle on
+        if (state.selectedRows.length < state.rows.length) {
+          stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
+            row.selected = true;
+            return row;
+          });
+          stateCopyToggle.toggleAllState = true;
+        }
+        // otherwise toggle off
+        else {
+          stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
+            return { ...row, selected: false };
+          });
+          stateCopyToggle.toggleAllState = false;
+        }
+
+        stateCopyToggle.selectedRows = stateCopyToggle.rows.filter(
+          row => row.selected
+        );
       }
-      // otherwise toggle off
-      else {
-        stateCopyToggle.rows.map(row => {
-          row.selected = false;
-          return row;
-        });
-        stateCopyToggle.toggleAllState = false;
-      }
-      stateCopyToggle.selectedRows = stateCopyToggle.rows.filter(
-        row => row.selected
-      );
 
       return stateCopyToggle;
     default:

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   TableContainer,
   Table,
@@ -42,13 +42,18 @@ const data = [
 ];
 
 function App() {
-  const { headers, rows, selectRow, selectedRows, toggleAll } = useTable(
-    columns,
-    data,
-    {
-      selectable: true,
-    }
-  );
+  const {
+    headers,
+    rows,
+    filteredRows,
+    selectRow,
+    selectedRows,
+    toggleAll,
+  } = useTable(columns, data, {
+    selectable: true,
+    filterOn: true,
+    filter: useCallback(rows => rows, []),
+  });
 
   return (
     <Grid container>
@@ -61,9 +66,9 @@ function App() {
                   <Checkbox
                     indeterminate={
                       selectedRows.length > 0 &&
-                      selectedRows.length !== rows.length
+                      selectedRows.length !== filteredRows.length
                     }
-                    checked={selectedRows.length === rows.length}
+                    checked={selectedRows.length === filteredRows.length}
                     onClick={() => toggleAll()}
                   />
                 </TableCell>
@@ -73,7 +78,7 @@ function App() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map(row => (
+              {filteredRows.map(row => (
                 <TableRow>
                   <TableCell>
                     <Checkbox
@@ -90,7 +95,9 @@ function App() {
           </Table>
         </TableContainer>
         <pre>
-          <code>{JSON.stringify({ selectedRows, rows }, null, 2)}</code>
+          <code>
+            {JSON.stringify({ selectedRows, rows, filteredRows }, null, 2)}
+          </code>
         </pre>
       </Grid>
     </Grid>

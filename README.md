@@ -19,11 +19,29 @@ npm install react-final-table
 
 ## [CodeSandbox Demo](https://codesandbox.io/s/react-final-table-with-selection-zcodc)
 
+## [Material UI Demo](https://codesandbox.io/s/material-ui-react-final-table-example-sigrz)
+
 ## Hooks
 
-### useTable
+### `useTable`
 
-### Basic example:
+This is the main hook exposed by the library and should be your entrypoint for any table functionality. Only `columns` and `data` are required as arguments:
+
+```jsx
+const {
+  headers,
+  rows,
+  filteredRows,
+  selectRow,
+  selectedRows
+} = useTable(columns, data, {
+  selectable?: boolean,
+  filter?: (rows: RowType[]) => RowType[],
+  filterOn?: boolean,
+});
+```
+
+### Basic example
 
 ```tsx
 import { useTable, ColumnType[] } from 'react-final-table';
@@ -77,7 +95,7 @@ const MyTable = () => {
 }
 ```
 
-### Advanced Example:
+### Advanced Example
 
 ```jsx
 import React, { useMemo } from 'react';
@@ -88,14 +106,7 @@ const columns = [
   {
     name: 'first_name',
     label: 'First Name',
-    render: ({ value }: { value: string }) => (
-      <>
-        <span role="img" aria-label="mage">
-          🧙
-        </span>
-        {value}
-      </>
-    ),
+    render: ({ value }: { value: string }) => <span>Sir {value}</span>,
   },
   {
     name: 'last_name',
