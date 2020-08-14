@@ -59,9 +59,9 @@ export type UseTableType = (
   }
 ) => {
   headers: ColumnType[];
+  originalRows: RowType[];
   rows: RowType[];
   selectedRows: RowType[];
-  filteredRows: RowType[];
   selectRow: (id: number) => void;
   toggleAll: () => void;
   toggleAllState: boolean;
@@ -70,8 +70,8 @@ export type UseTableType = (
 export type TableState = {
   columns: ColumnType[];
   rows: RowType[];
+  originalRows: RowType[];
   selectedRows: RowType[];
-  filteredRows: RowType[];
   filterOn: boolean;
   toggleAllState: boolean;
 };

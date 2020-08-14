@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   TableContainer,
   Table,
@@ -8,8 +8,9 @@ import {
   TableCell,
   Checkbox,
   Grid,
+  TextField,
 } from '@material-ui/core';
-import { useTable } from 'react-final-table';
+import { useTable, RowType } from 'react-final-table';
 
 const columns = [
   {
@@ -42,18 +43,30 @@ const data = [
 ];
 
 function App() {
+
+  const [searchString, setSearchString] = useState('');
+
   const {
     headers,
     rows,
-    filteredRows,
     selectRow,
     selectedRows,
+    originalRows,
     toggleAll,
   } = useTable(columns, data, {
     selectable: true,
-    filterOn: true,
-    filter: useCallback(rows => rows, []),
+    filter: useCallback((rows: RowType[]) => {
+      return rows.filter(row => {
+        return row.cells.filter(cell => {
+          if (cell.value.toLowerCase().includes(searchString)) {
+            return true;
+          }
+          return false;
+        }).length > 0;
+      })
+    }, [searchString]),
   });
+
 
   return (
     <Grid container>
@@ -66,9 +79,9 @@ function App() {
                   <Checkbox
                     indeterminate={
                       selectedRows.length > 0 &&
-                      selectedRows.length !== filteredRows.length
+                      selectedRows.length !== rows.length
                     }
-                    checked={selectedRows.length === filteredRows.length}
+                    checked={selectedRows.length === rows.length}
                     onClick={() => toggleAll()}
                   />
                 </TableCell>
@@ -78,7 +91,7 @@ function App() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredRows.map(row => (
+              {rows.map(row => (
                 <TableRow>
                   <TableCell>
                     <Checkbox
@@ -94,9 +107,10 @@ function App() {
             </TableBody>
           </Table>
         </TableContainer>
+        <TextField variant="outlined" label="Search..." value={searchString} onChange={(e) => setSearchString(e.target.value)} />
         <pre>
           <code>
-            {JSON.stringify({ selectedRows, rows, filteredRows }, null, 2)}
+            {JSON.stringify({ selectedRows, originalRows, rows }, null, 2)}
           </code>
         </pre>
       </Grid>
