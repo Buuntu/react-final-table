@@ -5,11 +5,20 @@ support built in.
 
 ## Features
 
-- Global sorting
+- Type safe
+- Global row filtering
 - Row selection
-- Custom row render function
-- Hidden row attributes
-- Data memoization
+- Custom column rendering
+- Column sorting
+- Data memoization for performance
+- Zero dependencies
+
+## Motivation
+
+While there are a plethora of table libraries available for every framework,
+most are opinionated about the UI. This is a minimal, type-safe headless UI
+library that you can plugin to whatever frontend framework you're using, as long
+as you're using React 16 and functional components.
 
 ## Install
 

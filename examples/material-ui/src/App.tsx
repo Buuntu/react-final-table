@@ -14,6 +14,14 @@ import {
 import { ArrowUpward, ArrowDownward } from '@material-ui/icons';
 import { useTable, RowType } from 'react-final-table';
 
+const today = new Date();
+const yesterday = new Date(today);
+
+yesterday.setDate(yesterday.getDate() - 1);
+
+today.toDateString();
+yesterday.toDateString();
+
 const columns = [
   {
     name: 'first_name',
@@ -31,16 +39,22 @@ const columns = [
     name: 'last_name',
     label: 'Last Name',
   },
+  {
+    name: 'date_born',
+    label: 'Born',
+  },
 ];
 
 const data = [
   {
     first_name: 'Frodo',
     last_name: 'Baggins',
+    date_born: today.toDateString(),
   },
   {
     first_name: 'Samwise',
     last_name: 'Gamgee',
+    date_born: yesterday.toDateString(),
   },
 ];
 
