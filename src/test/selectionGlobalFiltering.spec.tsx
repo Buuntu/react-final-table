@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { useTable } from '../hooks';
 import { ColumnType, RowType } from '../types';
-import { makeData } from './makeData';
+import { makeData, UserType } from './makeData';
 
 const columns = [
   {
@@ -26,6 +26,11 @@ const data = [
     lastName: 'Gamgee',
   },
 ];
+
+type TestDataType = {
+  firstName: string;
+  lastName: string;
+};
 
 const Table = ({
   columns,
@@ -188,8 +193,8 @@ const TableWithFilter = ({
   filter,
 }: {
   columns: ColumnType[];
-  data: Object[];
-  filter: (row: RowType[]) => RowType[];
+  data: TestDataType[];
+  filter: (row: RowType<TestDataType>[]) => RowType<TestDataType>[];
 }) => {
   const { headers, rows } = useTable(columns, data, {
     filter,
@@ -236,7 +241,7 @@ const TableWithSelectionAndFiltering = ({
   data,
 }: {
   columns: ColumnType[];
-  data: Object[];
+  data: UserType[];
 }) => {
   const [searchString, setSearchString] = useState('');
   const [filterOn, setFilterOn] = useState(false);
@@ -244,7 +249,7 @@ const TableWithSelectionAndFiltering = ({
   const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
     selectable: true,
     filter: useCallback(
-      (rows: RowType[]) => {
+      (rows: RowType<UserType>[]) => {
         return rows.filter(row => {
           return (
             row.cells.filter(cell => {

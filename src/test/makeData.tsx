@@ -1,3 +1,5 @@
+import { ColumnType } from 'types';
+
 // from json-generator.com
 const randomData = [
   {
@@ -260,7 +262,22 @@ const columns = [
   },
 ];
 
-export const makeData = (rowNum: number) => {
+export type UserType = {
+  id: number;
+  isActive: boolean;
+  age: number;
+  eyeColor: string;
+  firstName: string;
+  lastName: string;
+  company: string;
+  email: string;
+  phone: string;
+  address: string;
+};
+
+export const makeData = (
+  rowNum: number
+): { columns: ColumnType[]; data: UserType[] } => {
   return {
     columns,
     data: randomData.slice(0, rowNum),
