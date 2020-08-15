@@ -5,6 +5,17 @@ export type ColumnType = {
   render?: (value: any) => React.ReactNode;
 };
 
+export type HeaderType = {
+  name: string;
+  label?: string;
+  hidden?: boolean;
+  sorted: {
+    on: boolean;
+    asc: boolean;
+  };
+  render?: (value: any) => React.ReactNode;
+};
+
 export type ColumnByIdsType = {
   [key: string]: ColumnByIdType;
 };
@@ -38,7 +49,7 @@ export type CellType = {
   render: () => React.ReactNode;
 };
 
-export interface UseTableTypeParams<T> {
+export interface UseTableTypeParams<T extends {}> {
   columns: ColumnType[];
   data: T[];
   options?: {
@@ -48,27 +59,30 @@ export interface UseTableTypeParams<T> {
     filterOn?: boolean;
   };
 }
-export type UseTableType = (
-  columns: ColumnType[],
-  data: Object[],
-  options?: {
-    sortable?: boolean;
-    selectable?: boolean;
-    filter?: (row: RowType[]) => RowType[];
-    filterOn?: boolean;
-  }
-) => {
-  headers: ColumnType[];
-  originalRows: RowType[];
-  rows: RowType[];
-  selectedRows: RowType[];
-  selectRow: (id: number) => void;
-  toggleAll: () => void;
-  toggleAllState: boolean;
-};
+export interface UseTableType {
+  <T extends { [key: string]: any }>(
+    columns: ColumnType[],
+    data: T[],
+    options?: {
+      sortable?: boolean;
+      selectable?: boolean;
+      filter?: (row: RowType[]) => RowType[];
+    }
+  ): {
+    headers: HeaderType[];
+    originalRows: RowType[];
+    rows: RowType[];
+    selectedRows: RowType[];
+    toggleSort: (columnName: string) => void;
+    selectRow: (id: number) => void;
+    toggleAll: () => void;
+    toggleAllState: boolean;
+  };
+}
 
 export type TableState = {
-  columns: ColumnType[];
+  columnsById: ColumnByIdsType;
+  columns: HeaderType[];
   rows: RowType[];
   originalRows: RowType[];
   selectedRows: RowType[];
@@ -77,8 +91,7 @@ export type TableState = {
 };
 
 export type TableAction =
-  | { type: 'SORT'; column: string }
-  | { type: 'SET_ROW_DATA'; data: RowType[] }
+  | { type: 'TOGGLE_SORT'; columnName: string }
   | { type: 'SELECT_ROW'; rowId: number }
   | { type: 'GLOBAL_FILTER'; filter: (row: RowType[]) => RowType[] }
   | { type: 'GLOBAL_FILTER_OFF' }

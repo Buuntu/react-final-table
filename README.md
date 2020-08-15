@@ -36,7 +36,6 @@ const {
 } = useTable(columns, data, {
   selectable?: boolean,
   filter?: (rows: RowType[]) => RowType[],
-  filterOn?: boolean,
 });
 ```
 

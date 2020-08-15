@@ -11,6 +11,7 @@ import {
   TextField,
   Button,
 } from '@material-ui/core';
+import { ArrowUpward, ArrowDownward } from '@material-ui/icons';
 import { useTable, RowType } from 'react-final-table';
 
 const columns = [
@@ -44,7 +45,6 @@ const data = [
 ];
 
 function App() {
-
   const [searchString, setSearchString] = useState('');
 
   const {
@@ -53,21 +53,26 @@ function App() {
     selectRow,
     selectedRows,
     originalRows,
+    toggleSort,
     toggleAll,
   } = useTable(columns, data, {
     selectable: true,
-    filter: useCallback((rows: RowType[]) => {
-      return rows.filter(row => {
-        return row.cells.filter(cell => {
-          if (cell.value.toLowerCase().includes(searchString)) {
-            return true;
-          }
-          return false;
-        }).length > 0;
-      })
-    }, [searchString]),
+    filter: useCallback(
+      (rows: RowType[]) => {
+        return rows.filter(row => {
+          return (
+            row.cells.filter(cell => {
+              if (cell.value.toLowerCase().includes(searchString)) {
+                return true;
+              }
+              return false;
+            }).length > 0
+          );
+        });
+      },
+      [searchString]
+    ),
   });
-
 
   return (
     <Grid container>
@@ -87,7 +92,18 @@ function App() {
                   />
                 </TableCell>
                 {headers.map(column => (
-                  <TableCell>{column.label}</TableCell>
+                  <TableCell onClick={() => toggleSort(column.name)}>
+                    {column.label}{' '}
+                    {column.sorted.on ? (
+                      <>
+                        {column.sorted.asc ? (
+                          <ArrowUpward />
+                        ) : (
+                          <ArrowDownward />
+                        )}
+                      </>
+                    ) : null}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -117,17 +133,28 @@ function App() {
             </TableRow>
           </TableHead>
           <TableBody>
-              {selectedRows.map(row => {
-                return (<TableRow>
-                  <TableCell><Button onClick={() => selectRow(row.id)}>Deselect Row</Button></TableCell>
-                {row.cells.map(cell => {
-                  return <TableCell>{cell.render()}</TableCell>
-                })}
-                </TableRow>);
-              })}
+            {selectedRows.map(row => {
+              return (
+                <TableRow>
+                  <TableCell>
+                    <Button onClick={() => selectRow(row.id)}>
+                      Deselect Row
+                    </Button>
+                  </TableCell>
+                  {row.cells.map(cell => {
+                    return <TableCell>{cell.render()}</TableCell>;
+                  })}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </TableContainer>
-        <TextField variant="outlined" label="Search..." value={searchString} onChange={(e) => setSearchString(e.target.value)} />
+        <TextField
+          variant="outlined"
+          label="Search..."
+          value={searchString}
+          onChange={e => setSearchString(e.target.value)}
+        />
         <pre>
           <code>
             {JSON.stringify({ selectedRows, originalRows, rows }, null, 2)}
