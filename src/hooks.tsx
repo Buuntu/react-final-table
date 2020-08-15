@@ -1,16 +1,21 @@
 import { useMemo, useReducer, useEffect } from 'react';
 
 import {
-  UseTableType,
   ColumnByIdType,
   ColumnByIdsType,
   ColumnType,
   TableState,
   TableAction,
+  DataType,
+  UseTableReturnType,
+  UseTableOptionsType,
 } from './types';
 import { byTextAscending, byTextDescending } from './utils';
 
-const reducer = (state: TableState, action: TableAction): TableState => {
+const createReducer = <T extends DataType>() => (
+  state: TableState<T>,
+  action: TableAction<T>
+): TableState<T> => {
   switch (action.type) {
     case 'TOGGLE_SORT':
       if (!(action.columnName in state.columnsById)) {
@@ -44,10 +49,8 @@ const reducer = (state: TableState, action: TableAction): TableState => {
         columns: columnCopy,
         rows: state.rows.sort(
           isAscending
-            ? // @ts-ignore
-              byTextAscending(object => object.original[action.columnName])
-            : // @ts-ignore
-              byTextDescending(object => object.original[action.columnName])
+            ? byTextAscending(object => object.original[action.columnName])
+            : byTextDescending(object => object.original[action.columnName])
         ),
         columnsById: getColumnsById(columnCopy),
       };
@@ -150,7 +153,11 @@ const reducer = (state: TableState, action: TableAction): TableState => {
   }
 };
 
-export const useTable: UseTableType = (columns, data, options) => {
+export const useTable = <T extends DataType>(
+  columns: ColumnType[],
+  data: T[],
+  options?: UseTableOptionsType<T>
+): UseTableReturnType<T> => {
   const columnsWithSorting = useMemo(
     () =>
       columns.map(column => {
@@ -193,6 +200,7 @@ export const useTable: UseTableType = (columns, data, options) => {
     return newData;
   }, [data, columnsWithSorting, columnsById]);
 
+  const reducer = createReducer<T>();
   const [state, dispatch] = useReducer(reducer, {
     columns: columnsWithSorting,
     columnsById: columnsById,
@@ -209,7 +217,6 @@ export const useTable: UseTableType = (columns, data, options) => {
     } else if (options && !options.filter) {
       dispatch({ type: 'GLOBAL_FILTER_OFF' });
     }
-    // eslint-disable-next-line
   }, [options?.filter]);
 
   return {
@@ -217,7 +224,6 @@ export const useTable: UseTableType = (columns, data, options) => {
     rows: state.rows,
     originalRows: state.originalRows,
     selectedRows: state.selectedRows,
-    reducer,
     selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
     toggleSort: (columnName: string) =>
@@ -226,14 +232,21 @@ export const useTable: UseTableType = (columns, data, options) => {
   };
 };
 
-const makeRender = (value: any, column: ColumnByIdType, row: Object) => {
+const makeRender = <T extends DataType>(
+  value: any,
+  column: ColumnByIdType,
+  row: T
+) => {
   if (column.render) {
     return () => column.render({ row, value });
   }
   return () => value;
 };
 
-const sortDataInOrder = (data: Object[], columns: ColumnType[]): Object[] => {
+const sortDataInOrder = <T extends DataType>(
+  data: T[],
+  columns: ColumnType[]
+): T[] => {
   return data.map((row: any) => {
     const newRow: any = {};
     columns.forEach(column => {
