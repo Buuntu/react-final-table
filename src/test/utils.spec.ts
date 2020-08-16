@@ -1,4 +1,4 @@
-import { byTextAscending, byTextDescending } from '../utils';
+import { byTextAscending, byTextDescending } from '../index';
 
 type CharacterType = {
   firstName: string;
