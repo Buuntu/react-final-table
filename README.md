@@ -1,7 +1,8 @@
 # React Final Table ![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A headless UI for React tables, inspired by [react-table](https://github.com/tannerlinsley/react-table) but with Typescript
-support built in.
+A headless UI library for React tables, inspired by
+[react-table](https://github.com/tannerlinsley/react-table) but with Typescript
+support built in and a simpler API.
 
 ## Features
 
@@ -34,7 +35,8 @@ npm install react-final-table
 
 ### `useTable`
 
-This is the main hook exposed by the library and should be your entrypoint for any table functionality. Only `columns` and `data` are required as arguments:
+This is the main hook exposed by the library and should be your entrypoint for
+any table functionality. Only `columns` and `data` are required as arguments:
 
 ```jsx
 const {
@@ -44,20 +46,20 @@ const {
   selectedRows
 } = useTable(columns, data, {
   selectable?: boolean,
-  filter?: (rows: RowType[]) => RowType[],
+  filter?: (rows: RowType<T>[]) => RowType<T>[],
 });
 ```
 
 ### Basic example
 
 ```tsx
-import { useTable, ColumnType[] } from 'react-final-table';
+import { useTable } from 'react-final-table';
 
-const columns: ColumnType[] = [
+const columns = [
   {
     name: 'firstName',
     label: 'First Name',
-    render: ({value}) => <h1>{value}</h1> // optional
+    render: ({ value }) => <h1>{value}</h1>, // optional
   },
   {
     name: 'lastName',
@@ -99,7 +101,7 @@ const MyTable = () => {
       </tbody>
     </table>
   );
-}
+};
 ```
 
 ### Advanced Example
