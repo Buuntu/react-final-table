@@ -20,9 +20,11 @@ jobs:
         run: npm run lint
 
       - name: Run Jest
-        run: npm run test
-        
+        run: npm run test-coverage
+
       - uses: actions/checkout@master
+
+      - uses: codecov/codecov-action@v1
 
       - uses: codfish/semantic-release-action@master
         env:
