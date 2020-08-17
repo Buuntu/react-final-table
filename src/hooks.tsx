@@ -9,6 +9,7 @@ import {
   DataType,
   UseTableReturnType,
   UseTableOptionsType,
+  RowType,
 } from './types';
 import { byTextAscending, byTextDescending } from './utils';
 
@@ -24,9 +25,22 @@ const createReducer = <T extends DataType>() => (
 
       let isAscending = null;
 
+      let sortedRows: RowType<T>[] = [];
+
       const columnCopy = state.columns.map(column => {
         if (action.columnName === column.name) {
           isAscending = column.sorted.asc;
+          if (column.sort) {
+            sortedRows = isAscending
+              ? state.rows.sort(column.sort)
+              : state.rows.sort(column.sort).reverse();
+          } else {
+            sortedRows = state.rows.sort(
+              isAscending
+                ? byTextAscending(object => object.original[action.columnName])
+                : byTextDescending(object => object.original[action.columnName])
+            );
+          }
           return {
             ...column,
             sorted: {
@@ -47,11 +61,7 @@ const createReducer = <T extends DataType>() => (
       return {
         ...state,
         columns: columnCopy,
-        rows: state.rows.sort(
-          isAscending
-            ? byTextAscending(object => object.original[action.columnName])
-            : byTextDescending(object => object.original[action.columnName])
-        ),
+        rows: sortedRows,
         columnsById: getColumnsById(columnCopy),
       };
     case 'GLOBAL_FILTER':
@@ -154,7 +164,7 @@ const createReducer = <T extends DataType>() => (
 };
 
 export const useTable = <T extends DataType>(
-  columns: ColumnType[],
+  columns: ColumnType<T>[],
   data: T[],
   options?: UseTableOptionsType<T>
 ): UseTableReturnType<T> => {
@@ -245,7 +255,7 @@ const makeRender = <T extends DataType>(
 
 const sortDataInOrder = <T extends DataType>(
   data: T[],
-  columns: ColumnType[]
+  columns: ColumnType<T>[]
 ): T[] => {
   return data.map((row: any) => {
     const newRow: any = {};
@@ -259,7 +269,9 @@ const sortDataInOrder = <T extends DataType>(
   });
 };
 
-const getColumnsById = (columns: ColumnType[]): ColumnByIdsType => {
+const getColumnsById = <T extends DataType>(
+  columns: ColumnType<T>[]
+): ColumnByIdsType => {
   const columnsById: ColumnByIdsType = {};
   columns.forEach(column => {
     const col: any = {

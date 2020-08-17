@@ -1,11 +1,13 @@
-export type ColumnType = {
+export type ColumnType<T> = {
   name: string;
   label?: string;
   hidden?: boolean;
+  sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
   render?: (value: any) => React.ReactNode;
 };
 
-export type HeaderType = {
+// this is the type saved as state and returned
+export type HeaderType<T> = {
   name: string;
   label?: string;
   hidden?: boolean;
@@ -13,6 +15,7 @@ export type HeaderType = {
     on: boolean;
     asc: boolean;
   };
+  sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
   render?: (value: any) => React.ReactNode;
 };
 
@@ -52,7 +55,7 @@ export type CellType = {
 };
 
 export interface UseTableTypeParams<T extends DataType> {
-  columns: ColumnType[];
+  columns: ColumnType<T>[];
   data: T[];
   options?: {
     sortable?: boolean;
@@ -63,7 +66,7 @@ export interface UseTableTypeParams<T extends DataType> {
 }
 
 export interface UseTablePropsType<T> {
-  columns: ColumnType[];
+  columns: ColumnType<T>[];
   data: T[];
   options?: {
     sortable?: boolean;
@@ -79,7 +82,7 @@ export interface UseTableOptionsType<T> {
 }
 
 export interface UseTableReturnType<T> {
-  headers: HeaderType[];
+  headers: HeaderType<T>[];
   originalRows: RowType<T>[];
   rows: RowType<T>[];
   selectedRows: RowType<T>[];
@@ -91,7 +94,7 @@ export interface UseTableReturnType<T> {
 
 export type TableState<T extends DataType> = {
   columnsById: ColumnByIdsType;
-  columns: HeaderType[];
+  columns: HeaderType<T>[];
   rows: RowType<T>[];
   originalRows: RowType<T>[];
   selectedRows: RowType<T>[];

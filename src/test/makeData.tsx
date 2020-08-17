@@ -1,4 +1,5 @@
-import { ColumnType } from 'types';
+import { ColumnType, DataType } from 'types';
+import { date } from 'faker';
 
 // from json-generator.com
 const randomData = [
@@ -275,11 +276,51 @@ export type UserType = {
   address: string;
 };
 
-export const makeData = (
+export const makeData = <T extends {}>(
   rowNum: number
-): { columns: ColumnType[]; data: UserType[] } => {
+): { columns: ColumnType<T>[]; data: UserType[] } => {
   return {
     columns,
     data: randomData.slice(0, rowNum),
   };
+};
+
+export const makeSimpleData = <T extends DataType>() => {
+  const columns: ColumnType<T>[] = [
+    {
+      name: 'firstName',
+      label: 'First Name',
+    },
+    {
+      name: 'lastName',
+      label: 'Last Name',
+    },
+    {
+      name: 'birthDate',
+      label: 'Birth Date',
+    },
+  ];
+
+  const recentDate = date.recent();
+  const pastDate = date.past(undefined, recentDate);
+  const oldestDate = date.past(100, pastDate);
+
+  const data = [
+    {
+      firstName: 'Samwise',
+      lastName: 'Gamgee',
+      birthDate: pastDate.toISOString(),
+    },
+    {
+      firstName: 'Frodo',
+      lastName: 'Baggins',
+      birthDate: recentDate.toISOString(), // must be youngest for tests
+    },
+    {
+      firstName: 'Bilbo',
+      lastName: 'Baggins',
+      birthDate: oldestDate.toISOString(),
+    },
+  ];
+  return { columns, data };
 };

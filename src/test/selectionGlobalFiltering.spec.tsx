@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { useTable } from '../hooks';
-import { ColumnType, RowType } from '../types';
-import { makeData, UserType } from './makeData';
+import { ColumnType, RowType, DataType } from '../types';
+import { makeData } from './makeData';
 
 const columns = [
   {
@@ -27,17 +27,12 @@ const data = [
   },
 ];
 
-type TestDataType = {
-  firstName: string;
-  lastName: string;
-};
-
-const TableWithSelection = ({
+const TableWithSelection = <T extends DataType>({
   columns,
   data,
 }: {
-  columns: ColumnType[];
-  data: Object[];
+  columns: ColumnType<T>[];
+  data: T[];
 }) => {
   const { headers, rows, selectRow, selectedRows, toggleAll } = useTable(
     columns,
@@ -122,14 +117,14 @@ test('Should be able to select rows', async () => {
   expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
 });
 
-const TableWithFilter = ({
+const TableWithFilter = <T extends DataType>({
   columns,
   data,
   filter,
 }: {
-  columns: ColumnType[];
-  data: TestDataType[];
-  filter: (row: RowType<TestDataType>[]) => RowType<TestDataType>[];
+  columns: ColumnType<T>[];
+  data: T[];
+  filter: (row: RowType<T>[]) => RowType<T>[];
 }) => {
   const { headers, rows } = useTable(columns, data, {
     filter,
@@ -171,12 +166,12 @@ test('Should be able to filter rows', () => {
   expect(rtl.getAllByTestId('table-row')).toHaveLength(1);
 });
 
-const TableWithSelectionAndFiltering = ({
+const TableWithSelectionAndFiltering = <T extends DataType>({
   columns,
   data,
 }: {
-  columns: ColumnType[];
-  data: UserType[];
+  columns: ColumnType<T>[];
+  data: T[];
 }) => {
   const [searchString, setSearchString] = useState('');
   const [filterOn, setFilterOn] = useState(false);
@@ -184,7 +179,7 @@ const TableWithSelectionAndFiltering = ({
   const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
     selectable: true,
     filter: useCallback(
-      (rows: RowType<UserType>[]) => {
+      (rows: RowType<T>[]) => {
         return rows.filter(row => {
           return (
             row.cells.filter(cell => {
