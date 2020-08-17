@@ -30,7 +30,7 @@ const Table = ({
   columns,
   data,
 }: {
-  columns: ColumnType[];
+  columns: any[];
   data: { firstName: string; lastName: string }[];
 }) => {
   const { headers, rows } = useTable<{ firstName: string; lastName: string }>(
@@ -87,7 +87,7 @@ test('Should be equal regardless of field order in data', () => {
   expect(normalTl.asFragment()).toEqual(reverseTl.asFragment());
 });
 
-const columnsWithRender: ColumnType[] = [
+const columnsWithRender: ColumnType<any>[] = [
   {
     name: 'firstName',
     label: 'First Name',

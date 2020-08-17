@@ -4,14 +4,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { useTable } from '../hooks';
 import { ColumnType } from '../types';
-import { makeData } from './makeData';
+import { makeData, makeSimpleData } from './makeData';
 
-const Table = ({
+const Table = <T extends {}>({
   columns,
   data,
 }: {
-  columns: ColumnType[];
-  data: Object[];
+  columns: ColumnType<T>[];
+  data: T[];
 }) => {
   const { headers, rows, toggleSort } = useTable(columns, data, {
     sortable: true,
@@ -74,4 +74,49 @@ test('Should render a table with sorting enabled', () => {
 
   ({ getByText } = within(firstRow));
   expect(getByText('Yesenia')).toBeInTheDocument();
+});
+
+test('Should sort by dates correctly', () => {
+  const { columns, data } = makeSimpleData<{
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+  }>();
+  columns[2] = {
+    name: 'birthDate',
+    label: 'Birth Date',
+    sort: (objectA, objectB) => {
+      return (
+        Number(new Date(objectA.original.birthDate)) -
+        Number(new Date(objectB.original.birthDate))
+      );
+    },
+  };
+  const rtl = render(<Table columns={columns} data={data} />);
+
+  const dateColumn = rtl.getByTestId('column-birthDate');
+
+  // should be sorted in ascending order
+  fireEvent.click(dateColumn);
+
+  expect(rtl.queryByTestId('sorted-birthDate')).toBeInTheDocument();
+
+  let firstRow = rtl.getByTestId('row-0');
+  let lastRow = rtl.getByTestId('row-2');
+
+  let { getByText } = within(firstRow);
+  expect(getByText('Bilbo')).toBeInTheDocument();
+  ({ getByText } = within(lastRow));
+  expect(getByText('Frodo')).toBeInTheDocument();
+
+  // should be sorted in descending order
+  fireEvent.click(dateColumn);
+
+  firstRow = rtl.getByTestId('row-0');
+  lastRow = rtl.getByTestId('row-2');
+
+  ({ getByText } = within(firstRow));
+  expect(getByText('Frodo')).toBeInTheDocument();
+  ({ getByText } = within(lastRow));
+  expect(getByText('Bilbo')).toBeInTheDocument();
 });
