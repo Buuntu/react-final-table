@@ -32,85 +32,6 @@ type TestDataType = {
   lastName: string;
 };
 
-const Table = ({
-  columns,
-  data,
-}: {
-  columns: ColumnType[];
-  data: { firstName: string; lastName: string }[];
-}) => {
-  const { headers, rows } = useTable<{ firstName: string; lastName: string }>(
-    columns,
-    data
-  );
-
-  return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, idx) => (
-            <th key={idx}>{header.label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, idx) => (
-          <tr key={idx}>
-            {row.cells.map((cell, idx) => (
-              <td key={idx}>{cell.render()}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-};
-
-test('Should render a basic table', () => {
-  const rtl = render(<Table columns={columns} data={data} />);
-
-  expect(rtl.getByText('Frodo')).toBeInTheDocument();
-  expect(rtl.getByText('Baggins')).toBeInTheDocument();
-  expect(rtl.getByText('Samwise')).toBeInTheDocument();
-  expect(rtl.getByText('Gamgee')).toBeInTheDocument();
-});
-
-const reverseData = [
-  {
-    lastName: 'Baggins',
-    firstName: 'Frodo',
-  },
-  {
-    lastName: 'Gamgee',
-    firstName: 'Samwise',
-  },
-];
-
-test('Should be equal regardless of field order in data', () => {
-  const normalTl = render(<Table columns={columns} data={data} />);
-  const reverseTl = render(<Table columns={columns} data={reverseData} />);
-
-  expect(normalTl.asFragment()).toEqual(reverseTl.asFragment());
-});
-
-const columnsWithRender: ColumnType[] = [
-  {
-    name: 'firstName',
-    label: 'First Name',
-    render: ({ value }) => <h1 data-testid="first-name">{value}</h1>,
-  },
-  {
-    name: 'lastName',
-    label: 'Last Name',
-  },
-];
-
-test('Should see custom render HTML', () => {
-  const rtl = render(<Table columns={columnsWithRender} data={data} />);
-
-  expect(rtl.getAllByTestId('first-name')).toHaveLength(2);
-});
-
 const TableWithSelection = ({
   columns,
   data,
@@ -118,12 +39,17 @@ const TableWithSelection = ({
   columns: ColumnType[];
   data: Object[];
 }) => {
-  const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
-    selectable: true,
-  });
+  const { headers, rows, selectRow, selectedRows, toggleAll } = useTable(
+    columns,
+    data,
+    {
+      selectable: true,
+    }
+  );
 
   return (
     <>
+      <button data-testid="toggle-all" onClick={() => toggleAll()}></button>
       <table>
         <thead>
           <tr>
@@ -170,6 +96,7 @@ test('Should be able to select rows', async () => {
   const rtl = render(<TableWithSelection columns={columns} data={data} />);
   const checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
   const checkbox2 = rtl.getByTestId('checkbox-1') as HTMLInputElement;
+  const toggleAllButton = rtl.getByTestId('toggle-all') as HTMLInputElement;
 
   fireEvent.click(checkbox);
   expect(checkbox.checked).toEqual(true);
@@ -184,6 +111,14 @@ test('Should be able to select rows', async () => {
 
   fireEvent.click(checkbox2);
   expect(checkbox2.checked).toEqual(false);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
+
+  // toggle all
+  fireEvent.click(toggleAllButton);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(2);
+
+  // toggle all off
+  fireEvent.click(toggleAllButton);
   expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
 });
 
