@@ -105,6 +105,11 @@ test('Should see custom render HTML', () => {
   expect(rtl.getAllByTestId('first-name')).toHaveLength(2);
 });
 
+// to supress console error from test output
+beforeEach(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
 test('Should throw an error with invalid fields', () => {
   const columnsInvalid = [
     {
@@ -121,11 +126,7 @@ test('Should throw an error with invalid fields', () => {
     },
   ];
 
-  // to supress console error from test output
-  console.error = jest.fn();
   expect(() =>
     render(<Table columns={columnsInvalid} data={data} />)
   ).toThrowError();
-
-  expect(console.error).toHaveBeenCalled();
 });

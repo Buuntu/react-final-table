@@ -39,12 +39,17 @@ const TableWithSelection = ({
   columns: ColumnType[];
   data: Object[];
 }) => {
-  const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
-    selectable: true,
-  });
+  const { headers, rows, selectRow, selectedRows, toggleAll } = useTable(
+    columns,
+    data,
+    {
+      selectable: true,
+    }
+  );
 
   return (
     <>
+      <button data-testid="toggle-all" onClick={() => toggleAll()}></button>
       <table>
         <thead>
           <tr>
@@ -91,6 +96,7 @@ test('Should be able to select rows', async () => {
   const rtl = render(<TableWithSelection columns={columns} data={data} />);
   const checkbox = rtl.getByTestId('checkbox-0') as HTMLInputElement;
   const checkbox2 = rtl.getByTestId('checkbox-1') as HTMLInputElement;
+  const toggleAllButton = rtl.getByTestId('toggle-all') as HTMLInputElement;
 
   fireEvent.click(checkbox);
   expect(checkbox.checked).toEqual(true);
@@ -105,6 +111,14 @@ test('Should be able to select rows', async () => {
 
   fireEvent.click(checkbox2);
   expect(checkbox2.checked).toEqual(false);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
+
+  // toggle all
+  fireEvent.click(toggleAllButton);
+  expect(rtl.queryAllByTestId('selected-row')).toHaveLength(2);
+
+  // toggle all off
+  fireEvent.click(toggleAllButton);
   expect(rtl.queryAllByTestId('selected-row')).toHaveLength(0);
 });
 
