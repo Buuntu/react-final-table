@@ -1,8 +1,7 @@
 import { useMemo, useReducer, useEffect } from 'react';
 
 import {
-  ColumnByIdType,
-  ColumnByIdsType,
+  ColumnByNamesType,
   ColumnType,
   TableState,
   TableAction,
@@ -10,6 +9,7 @@ import {
   UseTableReturnType,
   UseTableOptionsType,
   RowType,
+  ColumnByNameType,
 } from './types';
 import { byTextAscending, byTextDescending } from './utils';
 
@@ -19,7 +19,7 @@ const createReducer = <T extends DataType>() => (
 ): TableState<T> => {
   switch (action.type) {
     case 'TOGGLE_SORT':
-      if (!(action.columnName in state.columnsById)) {
+      if (!(action.columnName in state.columnsByName)) {
         throw new Error(`Invalid column, ${action.columnName} not found`);
       }
 
@@ -27,19 +27,25 @@ const createReducer = <T extends DataType>() => (
 
       let sortedRows: RowType<T>[] = [];
 
+      // loop through all columns and set the sort parameter to off unless
+      // it's the specified column (only one column at a time for )
       const columnCopy = state.columns.map(column => {
+        // if the row was found
         if (action.columnName === column.name) {
           isAscending = column.sorted.asc;
           if (column.sort) {
             sortedRows = isAscending
               ? state.rows.sort(column.sort)
               : state.rows.sort(column.sort).reverse();
+            // default to sort by string
           } else {
-            sortedRows = state.rows.sort(
-              isAscending
-                ? byTextAscending(object => object.original[action.columnName])
-                : byTextDescending(object => object.original[action.columnName])
-            );
+            sortedRows = isAscending
+              ? state.rows.sort(
+                  byTextAscending(object => object.original[action.columnName])
+                )
+              : state.rows.sort(
+                  byTextDescending(object => object.original[action.columnName])
+                );
           }
           return {
             ...column,
@@ -62,7 +68,7 @@ const createReducer = <T extends DataType>() => (
         ...state,
         columns: columnCopy,
         rows: sortedRows,
-        columnsById: getColumnsById(columnCopy),
+        columnsByName: getColumnsByName(columnCopy),
       };
     case 'GLOBAL_FILTER':
       const filteredRows = action.filter(state.originalRows);
@@ -120,11 +126,10 @@ const createReducer = <T extends DataType>() => (
         row => row.selected === true
       );
 
-      if (stateCopy.selectedRows.length === stateCopy.rows.length) {
-        stateCopy.toggleAllState = true;
-      } else {
-        stateCopy.toggleAllState = false;
-      }
+      stateCopy.toggleAllState =
+        stateCopy.selectedRows.length === stateCopy.rows.length
+          ? (stateCopy.toggleAllState = true)
+          : (stateCopy.toggleAllState = false);
 
       return stateCopy;
     case 'TOGGLE_ALL':
@@ -181,10 +186,9 @@ export const useTable = <T extends DataType>(
       }),
     [columns]
   );
-  const columnsById: ColumnByIdsType = useMemo(
-    () => getColumnsById(columnsWithSorting),
-    [columns]
-  );
+  const columnsByName = useMemo(() => getColumnsByName(columnsWithSorting), [
+    columns,
+  ]);
 
   const tableData = useMemo(() => {
     const sortedData = sortDataInOrder(data, columnsWithSorting);
@@ -198,22 +202,22 @@ export const useTable = <T extends DataType>(
         cells: Object.entries(row)
           .map(([column, value]) => {
             return {
-              hidden: columnsById[column].hidden,
+              hidden: columnsByName[column].hidden,
               field: column,
               value: value,
-              render: makeRender(value, columnsById[column], row),
+              render: makeRender(value, columnsByName[column], row),
             };
           })
           .filter(cell => !cell.hidden),
       };
     });
     return newData;
-  }, [data, columnsWithSorting, columnsById]);
+  }, [data, columnsWithSorting, columnsByName]);
 
   const reducer = createReducer<T>();
   const [state, dispatch] = useReducer(reducer, {
     columns: columnsWithSorting,
-    columnsById: columnsById,
+    columnsByName: columnsByName,
     originalRows: tableData,
     rows: tableData,
     selectedRows: [],
@@ -244,13 +248,10 @@ export const useTable = <T extends DataType>(
 
 const makeRender = <T extends DataType>(
   value: any,
-  column: ColumnByIdType,
+  column: ColumnByNameType<T>,
   row: T
 ) => {
-  if (column.render) {
-    return () => column.render({ row, value });
-  }
-  return () => value;
+  return column.render ? () => column.render({ row, value }) : () => value;
 };
 
 const sortDataInOrder = <T extends DataType>(
@@ -269,10 +270,10 @@ const sortDataInOrder = <T extends DataType>(
   });
 };
 
-const getColumnsById = <T extends DataType>(
+const getColumnsByName = <T extends DataType>(
   columns: ColumnType<T>[]
-): ColumnByIdsType => {
-  const columnsById: ColumnByIdsType = {};
+): ColumnByNamesType<T> => {
+  const columnsByName: ColumnByNamesType<T> = {};
   columns.forEach(column => {
     const col: any = {
       label: column.label,
@@ -281,8 +282,8 @@ const getColumnsById = <T extends DataType>(
       col['render'] = column.render;
     }
     col['hidden'] = column.hidden;
-    columnsById[column.name] = col;
+    columnsByName[column.name] = col;
   });
 
-  return columnsById;
+  return columnsByName;
 };

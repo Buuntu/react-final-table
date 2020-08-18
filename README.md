@@ -1,6 +1,12 @@
-# React Final Table ![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Buuntu/react-final-table/branch/master/graph/badge.svg)](https://codecov.io/gh/Buuntu/react-final-table) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+# React Final Table
 
-A headless UI library for React tables, inspired by
+![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Buuntu/react-final-table/branch/master/graph/badge.svg)](https://codecov.io/gh/Buuntu/react-final-table) ![minzipped-size](https://badgen.net/bundlephobia/minzip/react-final-table) ![release](https://badgen.net/github/release/Buuntu/react-final-table) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+
+A [headless UI component
+libray](https://www.merrickchristensen.com/articles/headless-user-interface-components/)
+for managing complex table state in React.
+
+Inspired by
 [react-table](https://github.com/tannerlinsley/react-table) but with Typescript
 support built in and a simpler API.
 
@@ -16,10 +22,18 @@ support built in and a simpler API.
 
 ## Motivation
 
-While there are a plethora of table libraries available for every framework,
-most are opinionated about the UI. This is a minimal, type-safe headless UI
-library that you can plugin to whatever frontend framework you're using, as long
-as you're using React 16 and functional components.
+While there is an abundance of table libraries out there to help with sorting, filtering, pagination, and more, most are opinionated
+about the user interface. Opinionated UIs can seem nice at first, but they
+quickly become limiting. To embrace the Unix philosphy of separation of
+concerns, the interface should be separate from the engine (from [The Art of
+Unix
+Programming](https://www.goodreads.com/book/show/104745.The_Art_of_UNIX_Programming)).
+
+This is a minimal, type-safe, headless UI component library that you can plugin
+to whatever frontend you're using, as long as you're using React 16 and
+[Hooks](https://reactjs.org/docs/hooks-intro.html). You are then free to style
+your table any way you want while using **React Final Table** to manage complex
+state changes.
 
 ## Install
 

@@ -21,8 +21,8 @@ export type HeaderType<T> = {
 
 export type DataType = { [key: string]: any };
 
-export type ColumnByIdsType = {
-  [key: string]: ColumnByIdType;
+export type ColumnByNamesType<T> = {
+  [key: string]: ColumnByNameType<T>;
 };
 
 export type RenderFunctionType = ({
@@ -35,11 +35,10 @@ type RenderFunctionArgsType = {
   row: Object;
 };
 
-export type ColumnByIdType = {
-  label: string;
-  render: RenderFunctionType;
-  hidden?: boolean;
-};
+export type ColumnByNameType<T> = Omit<
+  Required<ColumnType<T>>,
+  'name' | 'sort'
+>;
 
 export interface RowType<T extends DataType> {
   id: number;
@@ -93,7 +92,7 @@ export interface UseTableReturnType<T> {
 }
 
 export type TableState<T extends DataType> = {
-  columnsById: ColumnByIdsType;
+  columnsByName: ColumnByNamesType<T>;
   columns: HeaderType<T>[];
   rows: RowType<T>[];
   originalRows: RowType<T>[];
