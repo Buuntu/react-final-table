@@ -49,5 +49,13 @@
     "tsdx": "^0.13.2",
     "tslib": "^2.0.1",
     "typescript": "^3.9.7"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Buuntu/react-final-table.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Buuntu/react-final-table"
+  },
+  "homepage": "https://github.com/Buuntu/react-final-table#readme"
 }
