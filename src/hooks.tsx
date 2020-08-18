@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useEffect } from 'react';
+import { useMemo, useReducer, useEffect, ReactNode } from 'react';
 
 import {
   ColumnByNamesType,
@@ -9,7 +9,9 @@ import {
   UseTableReturnType,
   UseTableOptionsType,
   RowType,
-  ColumnByNameType,
+  HeaderType,
+  HeaderRenderType,
+  ColumnStateType,
 } from './types';
 import { byTextAscending, byTextDescending } from './utils';
 
@@ -173,11 +175,14 @@ export const useTable = <T extends DataType>(
   data: T[],
   options?: UseTableOptionsType<T>
 ): UseTableReturnType<T> => {
-  const columnsWithSorting = useMemo(
+  const columnsWithSorting: ColumnStateType<T>[] = useMemo(
     () =>
       columns.map(column => {
         return {
           ...column,
+          label: column.label ? column.label : column.name,
+          hidden: column.hidden ? column.hidden : false,
+          sort: column.sort,
           sorted: {
             on: false,
             asc: true,
@@ -187,10 +192,10 @@ export const useTable = <T extends DataType>(
     [columns]
   );
   const columnsByName = useMemo(() => getColumnsByName(columnsWithSorting), [
-    columns,
+    columnsWithSorting,
   ]);
 
-  const tableData = useMemo(() => {
+  const tableData: RowType<T>[] = useMemo(() => {
     const sortedData = sortDataInOrder(data, columnsWithSorting);
 
     const newData = sortedData.map((row, idx) => {
@@ -205,7 +210,7 @@ export const useTable = <T extends DataType>(
               hidden: columnsByName[column].hidden,
               field: column,
               value: value,
-              render: makeRender(value, columnsByName[column], row),
+              render: makeRender(value, columnsByName[column].render, row),
             };
           })
           .filter(cell => !cell.hidden),
@@ -225,6 +230,18 @@ export const useTable = <T extends DataType>(
     filterOn: false,
   });
 
+  const headers: HeaderType<T>[] = useMemo(() => {
+    return [
+      ...state.columns.map(column => {
+        const label = column.label ? column.label : column.name;
+        return {
+          ...column,
+          render: makeHeaderRender(label, column.headerRender),
+        };
+      }),
+    ];
+  }, [state.columns]);
+
   useEffect(() => {
     if (options && options.filter) {
       dispatch({ type: 'GLOBAL_FILTER', filter: options.filter });
@@ -234,7 +251,7 @@ export const useTable = <T extends DataType>(
   }, [options?.filter]);
 
   return {
-    headers: state.columns.filter(column => !column.hidden),
+    headers: headers.filter(column => !column.hidden),
     rows: state.rows,
     originalRows: state.originalRows,
     selectedRows: state.selectedRows,
@@ -248,10 +265,17 @@ export const useTable = <T extends DataType>(
 
 const makeRender = <T extends DataType>(
   value: any,
-  column: ColumnByNameType<T>,
+  render: (({ value, row }: { value: any; row: T }) => ReactNode) | undefined,
   row: T
 ) => {
-  return column.render ? () => column.render({ row, value }) : () => value;
+  return render ? () => render({ row, value }) : () => value;
+};
+
+const makeHeaderRender = (
+  label: string,
+  render: HeaderRenderType | undefined
+) => {
+  return render ? () => render({ label }) : () => label;
 };
 
 const sortDataInOrder = <T extends DataType>(
@@ -278,6 +302,7 @@ const getColumnsByName = <T extends DataType>(
     const col: any = {
       label: column.label,
     };
+
     if (column.render) {
       col['render'] = column.render;
     }

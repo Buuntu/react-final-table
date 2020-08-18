@@ -64,6 +64,29 @@ const {
 });
 ```
 
+### `useTable` Arguments
+
+#### `columns`
+
+The first argument is an array of columns of type ColumnType. Each column has the following signature:
+
+```typescript
+type ColumnType<T> = {
+  name: string;
+  label?: string;
+  hidden?: boolean;
+  sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
+  render?: ({ value, row }: { value: any; row: T }) => React.ReactNode;
+  headerRender?: HeaderRenderType;
+};
+```
+
+Only name is required, the rest are optional arguments.
+
+#### `rows`
+
+Rows is the second argument to useTable and can be an array of any _object_ type.
+
 ### Basic example
 
 ```tsx
