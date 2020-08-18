@@ -3,8 +3,23 @@ export type ColumnType<T> = {
   label?: string;
   hidden?: boolean;
   sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
-  render?: (value: any) => React.ReactNode;
+  render?: ({ value, row }: { value: any; row: T }) => React.ReactNode;
+  headerRender?: HeaderRenderType;
 };
+
+export type ColumnStateType<T> = {
+  name: string;
+  label: string;
+  hidden: boolean;
+  sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
+  sorted: {
+    on: boolean;
+    asc: boolean;
+  };
+  headerRender?: HeaderRenderType;
+};
+
+export type HeaderRenderType = ({ label }: { label: any }) => React.ReactNode;
 
 // this is the type saved as state and returned
 export type HeaderType<T> = {
@@ -16,23 +31,23 @@ export type HeaderType<T> = {
     asc: boolean;
   };
   sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
-  render?: (value: any) => React.ReactNode;
+  render: () => React.ReactNode;
 };
 
 export type DataType = { [key: string]: any };
 
 export type ColumnByNamesType<T> = {
-  [key: string]: ColumnByNameType<T>;
+  [key: string]: ColumnType<T>;
 };
 
-export type RenderFunctionType = ({
+export type RenderFunctionType<T> = ({
   value,
   row,
-}: RenderFunctionArgsType) => React.ReactNode | undefined;
+}: RenderFunctionArgsType<T>) => React.ReactNode | undefined;
 
-type RenderFunctionArgsType = {
+type RenderFunctionArgsType<T> = {
   value: any;
-  row: Object;
+  row: T;
 };
 
 export type ColumnByNameType<T> = Omit<
@@ -93,7 +108,7 @@ export interface UseTableReturnType<T> {
 
 export type TableState<T extends DataType> = {
   columnsByName: ColumnByNamesType<T>;
-  columns: HeaderType<T>[];
+  columns: ColumnStateType<T>[];
   rows: RowType<T>[];
   originalRows: RowType<T>[];
   selectedRows: RowType<T>[];

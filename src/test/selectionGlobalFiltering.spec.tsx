@@ -50,7 +50,7 @@ const TableWithSelection = <T extends DataType>({
           <tr>
             <th></th>
             {headers.map((header, idx) => (
-              <th key={idx}>{header.label}</th>
+              <th key={idx}>{header.render()}</th>
             ))}
           </tr>
         </thead>
@@ -135,7 +135,7 @@ const TableWithFilter = <T extends DataType>({
       <thead>
         <tr>
           {headers.map((header, idx) => (
-            <th key={idx}>{header.label}</th>
+            <th key={idx}>{header.render()}</th>
           ))}
         </tr>
       </thead>
@@ -217,7 +217,7 @@ const TableWithSelectionAndFiltering = <T extends DataType>({
           <tr>
             <th></th>
             {headers.map((header, idx) => (
-              <th key={idx}>{header.label}</th>
+              <th key={idx}>{header.render()}</th>
             ))}
           </tr>
         </thead>

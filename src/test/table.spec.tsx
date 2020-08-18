@@ -43,7 +43,7 @@ const Table = ({
       <thead>
         <tr>
           {headers.map((header, idx) => (
-            <th key={idx}>{header.label}</th>
+            <th key={idx}>{header.render()}</th>
           ))}
         </tr>
       </thead>
@@ -99,10 +99,28 @@ const columnsWithRender: ColumnType<any>[] = [
   },
 ];
 
-test('Should see custom render HTML', () => {
+test('Should see custom row render HTML', () => {
   const rtl = render(<Table columns={columnsWithRender} data={data} />);
 
   expect(rtl.getAllByTestId('first-name')).toHaveLength(2);
+});
+
+const columnsWithColRender: ColumnType<any>[] = [
+  {
+    name: 'firstName',
+    label: 'First Name',
+    headerRender: ({ label }) => <h1 data-testid="first-name">{label}</h1>,
+  },
+  {
+    name: 'lastName',
+    label: 'Last Name',
+  },
+];
+
+test('Should see custom column render HTML', () => {
+  const rtl = render(<Table columns={columnsWithColRender} data={data} />);
+
+  expect(rtl.getAllByTestId('first-name')).toHaveLength(1);
 });
 
 // to supress console error from test output

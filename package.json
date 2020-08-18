@@ -1,5 +1,5 @@
 {
-  "version": "0.5.1",
+  "version": "1.1.0",
   "license": "MIT",
   "author": "Gabriel Abud",
   "main": "dist/index.js",
@@ -52,10 +52,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Buuntu/react-final-table.git"
+    "url": "https://github.com/Buuntu/react-final-table"
   },
   "bugs": {
-    "url": "https://github.com/Buuntu/react-final-table"
+    "url": "https://github.com/Buuntu/react-final-table/issues"
   },
   "homepage": "https://github.com/Buuntu/react-final-table#readme"
 }

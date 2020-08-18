@@ -45,7 +45,9 @@ const columns = [
   },
 ];
 
-const data = [
+type DataType = { first_name: string, last_name: string, date_born: string };
+
+const data: DataType[] = [
   {
     first_name: 'Frodo',
     last_name: 'Baggins',
@@ -69,10 +71,10 @@ function App() {
     originalRows,
     toggleSort,
     toggleAll,
-  } = useTable(columns, data, {
+  } = useTable<DataType>(columns, data, {
     selectable: true,
     filter: useCallback(
-      (rows: RowType[]) => {
+      (rows: RowType<DataType>[]) => {
         return rows.filter(row => {
           return (
             row.cells.filter(cell => {
@@ -107,7 +109,7 @@ function App() {
                 </TableCell>
                 {headers.map(column => (
                   <TableCell onClick={() => toggleSort(column.name)}>
-                    {column.label}{' '}
+                    {column.render()}{' '}
                     {column.sorted.on ? (
                       <>
                         {column.sorted.asc ? (
