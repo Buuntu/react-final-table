@@ -1,6 +1,6 @@
 # React Final Table
 
-![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Buuntu/react-final-table/branch/master/graph/badge.svg)](https://codecov.io/gh/Buuntu/react-final-table) ![minzipped-size](https://badgen.net/bundlephobia/minzip/react-final-table) ![release](https://badgen.net/github/release/Buuntu/react-final-table) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Buuntu/react-final-table/branch/master/graph/badge.svg)](https://codecov.io/gh/Buuntu/react-final-table) ![minzipped-size](https://img.shields.io/bundlephobia/minzip/react-final-table) ![release](https://img.shields.io/npm/v/react-final-table) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 A [headless UI component
 libray](https://www.merrickchristensen.com/articles/headless-user-interface-components/)
@@ -232,4 +232,4 @@ npm run test
 
 ## Contributing
 
-Contributing is welcome! Submit pull requests using the git forking workflow.
+Contributing is welcome. Please read the [CONTRIBUTING doc](CONTRIBUTING.md) for more.
