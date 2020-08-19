@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, within } from '@testing-library/react';
+import { render, fireEvent, within, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { useTable } from '../hooks';
@@ -34,6 +34,9 @@ const Table = <T extends {}>({
               ) : null}
             </th>
           ))}
+          <th data-testid="not-a-column" onClick={() => toggleSort('fake')}>
+            Fake column
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -51,18 +54,18 @@ const Table = <T extends {}>({
 
 test('Should render a table with sorting enabled', () => {
   const { columns: userCols, data: userData } = makeData(10);
-  const rtl = render(<Table columns={userCols} data={userData} />);
+  render(<Table columns={userCols} data={userData} />);
 
-  const firstNameColumn = rtl.getByTestId('column-firstName');
+  const firstNameColumn = screen.getByTestId('column-firstName');
 
-  expect(rtl.queryAllByLabelText('row')).toHaveLength(10);
+  expect(screen.queryAllByLabelText('row')).toHaveLength(10);
 
   // should be sorted in ascending order
   fireEvent.click(firstNameColumn);
 
-  let firstRow = rtl.getByTestId('row-0');
+  let firstRow = screen.getByTestId('row-0');
 
-  expect(rtl.queryByTestId('sorted-firstName')).toBeInTheDocument();
+  expect(screen.queryByTestId('sorted-firstName')).toBeInTheDocument();
 
   let { getByText } = within(firstRow);
   expect(getByText('Faulkner')).toBeInTheDocument();
@@ -70,7 +73,7 @@ test('Should render a table with sorting enabled', () => {
   // should be sorted in descending order
   fireEvent.click(firstNameColumn);
 
-  firstRow = rtl.getByTestId('row-0');
+  firstRow = screen.getByTestId('row-0');
 
   ({ getByText } = within(firstRow));
   expect(getByText('Yesenia')).toBeInTheDocument();
@@ -119,4 +122,17 @@ test('Should sort by dates correctly', () => {
   expect(getByText('Frodo')).toBeInTheDocument();
   ({ getByText } = within(lastRow));
   expect(getByText('Bilbo')).toBeInTheDocument();
+});
+
+beforeEach(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+test('Should throw error when sorting a column that does not exist', () => {
+  const { columns, data } = makeSimpleData();
+  render(<Table columns={columns} data={data} />);
+
+  const button = screen.getByTestId('not-a-column');
+
+  expect(() => fireEvent.click(button)).toThrowError();
 });

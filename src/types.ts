@@ -100,6 +100,7 @@ export interface UseTableReturnType<T> {
   originalRows: RowType<T>[];
   rows: RowType<T>[];
   selectedRows: RowType<T>[];
+  dispatch: React.Dispatch<TableAction<T>>;
   toggleSort: (columnName: string) => void;
   selectRow: (id: number) => void;
   toggleAll: () => void;

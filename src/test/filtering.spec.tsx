@@ -1,14 +1,66 @@
 import React, { FC } from 'react';
-import { render, fireEvent, within, waitFor } from '@testing-library/react';
+import { render, fireEvent, within, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { useTable } from '../hooks';
 import { makeSimpleData } from './makeData';
+import { DataType, ColumnType, RowType } from 'types';
 
-test('Should filter by text', async () => {
+const TableWithFilter = <T extends DataType>({
+  columns,
+  data,
+  filter,
+}: {
+  columns: ColumnType<T>[];
+  data: T[];
+  filter: (row: RowType<T>[]) => RowType<T>[];
+}) => {
+  const { headers, rows } = useTable(columns, data, {
+    filter,
+  });
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, idx) => (
+            <th key={idx}>{header.render()}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, idx) => (
+          <tr data-testid="table-row" key={idx}>
+            {row.cells.map((cell, idx) => (
+              <td key={idx}>{cell.render()}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+test('Should be able to filter rows', () => {
+  const { columns, data } = makeSimpleData();
+  render(
+    <TableWithFilter
+      columns={columns}
+      data={data}
+      filter={rows => {
+        return rows.filter((_, idx) => idx % 2 === 0);
+      }}
+    />
+  );
+
+  // there are 3 total rows, so both idx=0 and idx=2 will be true
+  expect(screen.getAllByTestId('table-row')).toHaveLength(2);
+});
+
+test('Should filter by text', () => {
   const { columns, data } = makeSimpleData();
 
-  const TableWithFilter: FC = () => {
+  const TableWithSearch: FC = () => {
     const { headers, rows, toggleSort, setSearchString } = useTable(
       columns,
       data,
@@ -58,7 +110,7 @@ test('Should filter by text', async () => {
     );
   };
 
-  const table = render(<TableWithFilter />);
+  const table = render(<TableWithSearch />);
 
   const input = table.getByTestId('input');
 
@@ -73,9 +125,7 @@ test('Should filter by text', async () => {
   expect(getByText('Frodo')).toBeInTheDocument();
 
   fireEvent.change(input, { target: { value: '' } });
-  await waitFor(() => {
-    expect(table.getByText('Bilbo')).toBeInTheDocument();
-  });
+  expect(table.getByText('Bilbo')).toBeInTheDocument();
   expect(table.getAllByLabelText('row')).toHaveLength(3);
 
   fireEvent.change(input, { target: { value: 'Bag' } });

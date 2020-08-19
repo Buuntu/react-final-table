@@ -1,6 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderHook } from '@testing-library/react-hooks';
+
 import { useTable } from '../hooks';
 import { ColumnType } from '../types';
 
@@ -146,5 +148,14 @@ test('Should throw an error with invalid fields', () => {
 
   expect(() =>
     render(<Table columns={columnsInvalid} data={data} />)
+  ).toThrowError();
+});
+
+test('Should throw an error with invalid reducer action', () => {
+  const { result } = renderHook(() => useTable(columns, data));
+
+  expect(() =>
+    // @ts-ignore
+    result.current.dispatch({ type: 'DOES_NOT_EXIT' })
   ).toThrowError();
 });

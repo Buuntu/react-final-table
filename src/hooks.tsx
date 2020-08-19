@@ -88,23 +88,6 @@ const createReducer = <T extends DataType>() => (
         }),
         filterOn: true,
       };
-    case 'GLOBAL_FILTER_OFF':
-      const ogRows = [...state.originalRows];
-      const selRows: { [key: number]: boolean } = {};
-      state.selectedRows.map(row => {
-        selRows[row.id] = row.selected ? true : false;
-      });
-
-      return {
-        ...state,
-        filterOn: false,
-        toggleAllState: false,
-        rows: ogRows.map(row => {
-          return selRows[row.id]
-            ? { ...row, selected: selectedRowsById[row.id] }
-            : { ...row };
-        }),
-      };
     case 'SELECT_ROW':
       const stateCopy = { ...state };
 
@@ -258,8 +241,6 @@ export const useTable = <T extends DataType>(
   useEffect(() => {
     if (options && options.filter) {
       dispatch({ type: 'GLOBAL_FILTER', filter: options.filter });
-    } else if (options && !options.filter) {
-      dispatch({ type: 'GLOBAL_FILTER_OFF' });
     }
   }, [options?.filter]);
 
@@ -268,6 +249,7 @@ export const useTable = <T extends DataType>(
     rows: state.rows,
     originalRows: state.originalRows,
     selectedRows: state.selectedRows,
+    dispatch,
     selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
     toggleSort: (columnName: string) =>
