@@ -33,6 +33,7 @@
       "pre-commit": "tsdx lint"
     }
   },
+  "testEnvironment": "jest-environment-jsdom-sixteen",
   "name": "react-final-table",
   "module": "dist/react-final-table.esm.js",
   "devDependencies": {
@@ -44,6 +45,7 @@
     "codecov": "^3.7.2",
     "faker": "^4.1.0",
     "husky": "^4.2.5",
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "tsdx": "^0.13.2",
