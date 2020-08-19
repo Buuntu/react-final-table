@@ -1,4 +1,4 @@
-# React Final Table
+# React Final Table <!-- omit in toc -->
 
 ![CI](https://github.com/Buuntu/react-final-table/workflows/tests/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT) [![codecov](https://codecov.io/gh/Buuntu/react-final-table/branch/master/graph/badge.svg)](https://codecov.io/gh/Buuntu/react-final-table) ![minzipped-size](https://img.shields.io/bundlephobia/minzip/react-final-table) ![release](https://img.shields.io/npm/v/react-final-table) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
@@ -18,7 +18,22 @@ support built in and a simpler API.
 - Custom column rendering
 - Column sorting
 - Data memoization for performance
-- Zero dependencies
+- **Zero** dependencies
+
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Install](#install)
+- [Demos](#demos)
+  - [CodeSandbox Demo](#codesandbox-demo)
+  - [Material UI Demo](#material-ui-demo)
+- [`useTable`](#usetable)
+- [Examples](#examples)
+  - [Basic example](#basic-example)
+  - [Searching](#searching)
+  - [Row Selection](#row-selection)
+- [Performance](#performance)
+- [Contributing](#contributing)
 
 ## Motivation
 
@@ -41,34 +56,22 @@ state changes.
 npm install react-final-table
 ```
 
-## [CodeSandbox Demo](https://codesandbox.io/s/react-final-table-with-selection-zcodc)
+## Demos
 
-## [Material UI Demo](https://codesandbox.io/s/material-ui-react-final-table-example-sigrz)
+### [CodeSandbox Demo](https://codesandbox.io/s/react-final-table-with-selection-zcodc)
 
-## Hooks
+### [Material UI Demo](https://codesandbox.io/s/material-ui-react-final-table-example-sigrz)
 
-### `useTable`
+## `useTable`
 
 This is the main hook exposed by the library and should be your entrypoint for
-any table functionality. Only `columns` and `data` are required as arguments:
+any table functionality. Only `columns` and `rows` are required as arguments:
 
 ```jsx
-const {
-  headers,
-  rows,
-  selectRow,
-  selectedRows
-} = useTable(columns, data, {
-  selectable?: boolean,
-  filter?: (rows: RowType<T>[]) => RowType<T>[],
-});
+const { headers, rows } = useTable(columns, rows);
 ```
 
-### `useTable` Arguments
-
-#### `columns`
-
-The first argument is an array of columns of type ColumnType. Each column has the following signature:
+1. `columns`: The first argument is an array of columns of type ColumnType. Only the name of each column is required. Each column has the following type signature:
 
 ```typescript
 type ColumnType<T> = {
@@ -81,11 +84,9 @@ type ColumnType<T> = {
 };
 ```
 
-Only name is required, the rest are optional arguments.
+2. `rows`: Rows is the second argument to useTable and can be an array of any _object_ type.
 
-#### `rows`
-
-Rows is the second argument to useTable and can be an array of any _object_ type.
+## Examples
 
 ### Basic example
 
@@ -96,7 +97,7 @@ const columns = [
   {
     name: 'firstName',
     label: 'First Name',
-    render: ({ value }) => <h1>{value}</h1>, // optional
+    render: ({ value }) => <h1>{value}</h1>,
   },
   {
     name: 'lastName',
@@ -141,10 +142,10 @@ const MyTable = () => {
 };
 ```
 
-### Filtering
+### Searching
 
 ```jsx
-const TableWithFilter: FC = () => {
+const Table: FC = () => {
     const { headers, rows, setSearchString } = useTable(
       columns,
       data,
