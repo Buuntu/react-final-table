@@ -77,7 +77,7 @@ type ColumnType<T> = {
   hidden?: boolean;
   sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
   render?: ({ value, row }: { value: any; row: T }) => React.ReactNode;
-  headerRender?: HeaderRenderType;
+  headerRender?: ({ label }: { label: string }) => React.ReactNode;
 };
 ```
 
@@ -141,41 +141,56 @@ const MyTable = () => {
 };
 ```
 
-### Advanced Example
+### Filtering
+
+```jsx
+const TableWithFilter: FC = () => {
+    const { headers, rows, setSearchString } = useTable(
+      columns,
+      data,
+    );
+
+    return (
+      <>
+        <input
+          type="text"
+          onChange={e => {
+            setSearchString(e.target.value);
+          }}
+        ></input>
+        <table>
+          <thead>
+            <tr>
+              {headers.map((header, idx) => (
+                <th key={idx}>
+                  {header.render()}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, idx) => (
+              <tr key={idx}>
+                {row.cells.map((cell, idx) => (
+                  <td key={idx}>{cell.render()}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </>
+    );
+```
+
+### Row Selection
 
 ```jsx
 import React, { useMemo } from 'react';
 import { useTable } from 'react-final-table';
-
-const columns = [
-  { name: 'id', hidden: true },
-  {
-    name: 'first_name',
-    label: 'First Name',
-    render: ({ value }: { value: string }) => <span>Sir {value}</span>,
-  },
-  {
-    name: 'last_name',
-    label: 'Last Name',
-  },
-];
-
-const data = [
-  {
-    id: 1,
-    first_name: 'Frodo',
-    last_name: 'Baggins',
-  },
-  {
-    id: 2,
-    first_name: 'Samwise',
-    last_name: 'Gamgee',
-  },
-];
+import makeData from 'makeData'; // replace this with your own data
 
 function App() {
-  const memoColumns = useMemo(() => columns, []);
-  const memoData = useMemo(() => data, []);
+  const { columns, rows } = makeData();
 
   const { headers, rows, selectRow, selectedRows } = useTable(
     memoColumns,
@@ -214,9 +229,6 @@ function App() {
           ))}
         </tbody>
       </table>
-      <pre>
-        <code>{JSON.stringify(selectedRows, null, 2)}</code>
-      </pre>
     </>
   );
 }
@@ -224,11 +236,11 @@ function App() {
 export default App;
 ```
 
-## Test
+## Performance
 
-```bash
-npm run test
-```
+It's recommended that you memoize your columns and data using `useMemo`. This is
+to prevent the table from rerendering everytime your component rerenders, which
+can have negative consequences on performance.
 
 ## Contributing
 

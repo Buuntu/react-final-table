@@ -103,6 +103,7 @@ export interface UseTableReturnType<T> {
   toggleSort: (columnName: string) => void;
   selectRow: (id: number) => void;
   toggleAll: () => void;
+  setSearchString: (searchString: string) => void;
   toggleAllState: boolean;
 }
 
@@ -120,5 +121,6 @@ export type TableAction<T extends DataType> =
   | { type: 'TOGGLE_SORT'; columnName: string }
   | { type: 'SELECT_ROW'; rowId: number }
   | { type: 'GLOBAL_FILTER'; filter: (row: RowType<T>[]) => RowType<T>[] }
+  | { type: 'SEARCH_STRING'; searchString: string }
   | { type: 'GLOBAL_FILTER_OFF' }
   | { type: 'TOGGLE_ALL' };

@@ -134,6 +134,19 @@ const createReducer = <T extends DataType>() => (
           : (stateCopy.toggleAllState = false);
 
       return stateCopy;
+    case 'SEARCH_STRING':
+      const stateCopySearch = { ...state };
+      stateCopySearch.rows = stateCopySearch.originalRows.filter(row => {
+        return (
+          row.cells.filter(cell => {
+            if (cell.value.includes(action.searchString)) {
+              return true;
+            }
+            return false;
+          }).length > 0
+        );
+      });
+      return stateCopySearch;
     case 'TOGGLE_ALL':
       const stateCopyToggle = { ...state };
       const rowIds: { [key: number]: boolean } = {};
@@ -166,7 +179,7 @@ const createReducer = <T extends DataType>() => (
 
       return stateCopyToggle;
     default:
-      return state;
+      throw new Error('Invalid reducer action');
   }
 };
 
@@ -259,6 +272,8 @@ export const useTable = <T extends DataType>(
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
     toggleSort: (columnName: string) =>
       dispatch({ type: 'TOGGLE_SORT', columnName }),
+    setSearchString: (searchString: string) =>
+      dispatch({ type: 'SEARCH_STRING', searchString }),
     toggleAllState: state.toggleAllState,
   };
 };
