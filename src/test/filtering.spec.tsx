@@ -98,7 +98,7 @@ test('Should filter by text', () => {
           </thead>
           <tbody>
             {rows.map((row, idx) => (
-              <tr data-testid={`row-${idx}`} aria-label="row" key={idx}>
+              <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
                 {row.cells.map((cell, idx) => (
                   <td key={idx}>{cell.render()}</td>
                 ))}
@@ -114,11 +114,11 @@ test('Should filter by text', () => {
 
   const input = table.getByTestId('input');
 
-  expect(table.getAllByLabelText('row')).toHaveLength(3);
+  expect(table.getAllByRole('table-row')).toHaveLength(3);
 
   fireEvent.change(input, { target: { value: 'Frodo' } });
 
-  expect(table.getAllByLabelText('row')).toHaveLength(1);
+  expect(table.getAllByRole('table-row')).toHaveLength(1);
   let firstRow = table.getByTestId('row-0');
 
   let { getByText } = within(firstRow);
@@ -126,8 +126,8 @@ test('Should filter by text', () => {
 
   fireEvent.change(input, { target: { value: '' } });
   expect(table.getByText('Bilbo')).toBeInTheDocument();
-  expect(table.getAllByLabelText('row')).toHaveLength(3);
+  expect(table.getAllByRole('table-row')).toHaveLength(3);
 
   fireEvent.change(input, { target: { value: 'Bag' } });
-  expect(table.getAllByLabelText('row')).toHaveLength(2);
+  expect(table.getAllByRole('table-row')).toHaveLength(2);
 });
