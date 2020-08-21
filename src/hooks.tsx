@@ -20,6 +20,12 @@ const createReducer = <T extends DataType>() => (
   action: TableAction<T>
 ): TableState<T> => {
   switch (action.type) {
+    case 'SET_ROWS':
+      return {
+        ...state,
+        rows: action.data,
+        originalRows: action.data,
+      };
     case 'TOGGLE_SORT':
       if (!(action.columnName in state.columnsByName)) {
         throw new Error(`Invalid column, ${action.columnName} not found`);
@@ -216,6 +222,7 @@ export const useTable = <T extends DataType>(
   }, [data, columnsWithSorting, columnsByName]);
 
   const reducer = createReducer<T>();
+
   const [state, dispatch] = useReducer(reducer, {
     columns: columnsWithSorting,
     columnsByName: columnsByName,
@@ -225,6 +232,12 @@ export const useTable = <T extends DataType>(
     toggleAllState: false,
     filterOn: false,
   });
+
+  useEffect(() => {
+    if (tableData.length > 0) {
+      dispatch({ type: 'SET_ROWS', data: tableData });
+    }
+  }, [tableData]);
 
   const headers: HeaderType<T>[] = useMemo(() => {
     return [

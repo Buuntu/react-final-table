@@ -124,4 +124,5 @@ export type TableAction<T extends DataType> =
   | { type: 'GLOBAL_FILTER'; filter: (row: RowType<T>[]) => RowType<T>[] }
   | { type: 'SEARCH_STRING'; searchString: string }
   | { type: 'GLOBAL_FILTER_OFF' }
+  | { type: 'SET_ROWS'; data: RowType<T>[] }
   | { type: 'TOGGLE_ALL' };

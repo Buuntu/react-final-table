@@ -41,7 +41,7 @@ const Table = <T extends {}>({
       </thead>
       <tbody>
         {rows.map((row, idx) => (
-          <tr data-testid={`row-${idx}`} aria-label="row" key={idx}>
+          <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
             {row.cells.map((cell, idx) => (
               <td key={idx}>{cell.render()}</td>
             ))}
@@ -58,7 +58,7 @@ test('Should render a table with sorting enabled', () => {
 
   const firstNameColumn = screen.getByTestId('column-firstName');
 
-  expect(screen.queryAllByLabelText('row')).toHaveLength(10);
+  expect(screen.queryAllByRole('table-row')).toHaveLength(10);
 
   // should be sorted in ascending order
   fireEvent.click(firstNameColumn);
@@ -95,17 +95,17 @@ test('Should sort by dates correctly', () => {
       );
     },
   };
-  const rtl = render(<Table columns={columns} data={data} />);
+  render(<Table columns={columns} data={data} />);
 
-  const dateColumn = rtl.getByTestId('column-birthDate');
+  const dateColumn = screen.getByTestId('column-birthDate');
 
   // should be sorted in ascending order
   fireEvent.click(dateColumn);
 
-  expect(rtl.queryByTestId('sorted-birthDate')).toBeInTheDocument();
+  expect(screen.queryByTestId('sorted-birthDate')).toBeInTheDocument();
 
-  let firstRow = rtl.getByTestId('row-0');
-  let lastRow = rtl.getByTestId('row-2');
+  let firstRow = screen.getByTestId('row-0');
+  let lastRow = screen.getByTestId('row-2');
 
   let { getByText } = within(firstRow);
   expect(getByText('Bilbo')).toBeInTheDocument();
@@ -115,8 +115,8 @@ test('Should sort by dates correctly', () => {
   // should be sorted in descending order
   fireEvent.click(dateColumn);
 
-  firstRow = rtl.getByTestId('row-0');
-  lastRow = rtl.getByTestId('row-2');
+  firstRow = screen.getByTestId('row-0');
+  lastRow = screen.getByTestId('row-2');
 
   ({ getByText } = within(firstRow));
   expect(getByText('Frodo')).toBeInTheDocument();
