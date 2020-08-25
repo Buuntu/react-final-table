@@ -37,7 +37,7 @@ Typescript support built in and a simpler API.
   - [Basic example](#basic-example)
   - [Searching](#searching)
   - [Row Selection](#row-selection)
-- [Pagination](#pagination)
+  - [Pagination](#pagination)
 - [Performance](#performance)
 - [Contributing](#contributing)
 
@@ -244,7 +244,7 @@ function App() {
 }
 ```
 
-## Pagination
+### Pagination
 
 ```jsx
 export const App: FC = () => {
@@ -304,7 +304,3 @@ can have negative consequences on performance.
 ## Contributing
 
 Contributing is welcome. Please read the [CONTRIBUTING doc](CONTRIBUTING.md) for more.
-
-```
-
-```
