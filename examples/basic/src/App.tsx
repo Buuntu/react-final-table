@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-final-table';
 
+import { PaginationTable } from './PaginationTable';
+
 const columns = [
   {
     name: 'first_name',
@@ -43,6 +45,7 @@ function App() {
     }
   );
 
+
   return (
     <>
       <table>
@@ -75,6 +78,8 @@ function App() {
       <pre>
         <code>{JSON.stringify(selectedRows)}</code>
       </pre>
+      <h2>Pagination</h2>
+      <PaginationTable />
     </>
   );
 }

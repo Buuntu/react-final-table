@@ -243,6 +243,18 @@ const randomData = [
     phone: '+1 (989) 455-3049',
     address: '513 Homecrest Court, Washington, Texas, 9075',
   },
+  {
+    id: 20,
+    isActive: false,
+    age: 34,
+    eyeColor: 'blue',
+    firstName: 'Joe',
+    lastName: 'Delaney',
+    company: 'KENGEN',
+    email: 'joe.delaney@kengen.us',
+    phone: '+1 (233) 455-3049',
+    address: '232 Terrace Court, Washington, Texas, 2341',
+  },
 ];
 
 const columns = [
