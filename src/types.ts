@@ -92,6 +92,7 @@ export interface UseTablePropsType<T> {
 export interface UseTableOptionsType<T> {
   sortable?: boolean;
   selectable?: boolean;
+  pagination?: boolean;
   filter?: (row: RowType<T>[]) => RowType<T>[];
 }
 
@@ -106,7 +107,17 @@ export interface UseTableReturnType<T> {
   toggleAll: () => void;
   setSearchString: (searchString: string) => void;
   toggleAllState: boolean;
+  pagination: PaginatorType;
 }
+
+type PaginatorType = {
+  nextPage: () => void;
+  prevPage: () => void;
+  page: number;
+  perPage: number;
+  canNext: boolean;
+  canPrev: boolean;
+};
 
 export type TableState<T extends DataType> = {
   columnsByName: ColumnByNamesType<T>;
@@ -116,6 +127,8 @@ export type TableState<T extends DataType> = {
   selectedRows: RowType<T>[];
   filterOn: boolean;
   toggleAllState: boolean;
+  pagination: PaginatorType;
+  paginationEnabled: boolean;
 };
 
 export type TableAction<T extends DataType> =
@@ -125,4 +138,6 @@ export type TableAction<T extends DataType> =
   | { type: 'SEARCH_STRING'; searchString: string }
   | { type: 'GLOBAL_FILTER_OFF' }
   | { type: 'SET_ROWS'; data: RowType<T>[] }
+  | { type: 'NEXT_PAGE' }
+  | { type: 'PREV_PAGE' }
   | { type: 'TOGGLE_ALL' };

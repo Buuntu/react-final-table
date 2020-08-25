@@ -1,4 +1,4 @@
-import { useMemo, useReducer, useEffect, ReactNode } from 'react';
+import { useMemo, useReducer, useEffect, ReactNode, useCallback } from 'react';
 
 import {
   ColumnByNamesType,
@@ -21,10 +21,60 @@ const createReducer = <T extends DataType>() => (
 ): TableState<T> => {
   switch (action.type) {
     case 'SET_ROWS':
+      if (state.paginationEnabled === true) {
+        return {
+          ...state,
+          rows: getPaginatedData(
+            action.data,
+            state.pagination.perPage,
+            state.pagination.page
+          ),
+          originalRows: action.data,
+        };
+      }
+
       return {
         ...state,
         rows: action.data,
         originalRows: action.data,
+      };
+
+    case 'NEXT_PAGE':
+      const nextPage = state.pagination.page + 1;
+      return {
+        ...state,
+        rows: getPaginatedData(
+          state.originalRows,
+          state.pagination.perPage,
+          nextPage
+        ),
+        pagination: {
+          ...state.pagination,
+          page: nextPage,
+          canNext:
+            nextPage * state.pagination.perPage < state.originalRows.length,
+          canPrev: nextPage !== 1,
+        },
+      };
+    case 'PREV_PAGE':
+      if (state.pagination.page === 1) {
+        return { ...state };
+      }
+      const prevPage = state.pagination.page - 1;
+      return {
+        ...state,
+        rows: getPaginatedData(
+          state.originalRows,
+          state.pagination.perPage,
+          prevPage
+        ),
+        pagination: {
+          ...state.pagination,
+          page: prevPage,
+          canNext:
+            prevPage * state.pagination.perPage < state.originalRows.length,
+          canPrev: prevPage !== 1,
+        },
       };
     case 'TOGGLE_SORT':
       if (!(action.columnName in state.columnsByName)) {
@@ -230,13 +280,28 @@ export const useTable = <T extends DataType>(
     rows: tableData,
     selectedRows: [],
     toggleAllState: false,
-    filterOn: false,
+    filterOn: !!options?.filter,
+    paginationEnabled: !!options?.pagination,
+    pagination: {
+      page: 1,
+      perPage: 10,
+      canNext: true,
+      canPrev: false,
+      nextPage: () => {},
+      prevPage: () => {},
+    },
   });
 
+  state.pagination.nextPage = useCallback(() => {
+    dispatch({ type: 'NEXT_PAGE' });
+  }, [dispatch]);
+  state.pagination.prevPage = useCallback(
+    () => dispatch({ type: 'PREV_PAGE' }),
+    [dispatch]
+  );
+
   useEffect(() => {
-    if (tableData.length > 0) {
-      dispatch({ type: 'SET_ROWS', data: tableData });
-    }
+    dispatch({ type: 'SET_ROWS', data: tableData });
   }, [tableData]);
 
   const headers: HeaderType<T>[] = useMemo(() => {
@@ -269,6 +334,7 @@ export const useTable = <T extends DataType>(
       dispatch({ type: 'TOGGLE_SORT', columnName }),
     setSearchString: (searchString: string) =>
       dispatch({ type: 'SEARCH_STRING', searchString }),
+    pagination: state.pagination,
     toggleAllState: state.toggleAllState,
   };
 };
@@ -321,4 +387,14 @@ const getColumnsByName = <T extends DataType>(
   });
 
   return columnsByName;
+};
+
+const getPaginatedData = <T extends DataType>(
+  rows: RowType<T>[],
+  perPage: number,
+  page: number
+) => {
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  return rows.slice(start, end);
 };
