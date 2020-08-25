@@ -91,5 +91,12 @@ test('Should render a basic table', () => {
 
   fireEvent.click(prevPage);
 
+  expect(screen.getByTestId('page-number')).toContainHTML('1');
+
   expect(nextTen).toHaveLength(10);
+
+  // on page 1, clicking previous should do nothing
+  fireEvent.click(prevPage);
+
+  expect(screen.getByTestId('page-number')).toContainHTML('1');
 });

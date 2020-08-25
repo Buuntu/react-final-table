@@ -57,10 +57,9 @@ const createReducer = <T extends DataType>() => (
         },
       };
     case 'PREV_PAGE':
-      if (state.pagination.page === 1) {
-        return { ...state };
-      }
-      const prevPage = state.pagination.page - 1;
+      const prevPage =
+        state.pagination.page === 1 ? 1 : state.pagination.page - 1;
+
       return {
         ...state,
         rows: getPaginatedData(
