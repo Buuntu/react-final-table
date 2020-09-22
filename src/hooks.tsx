@@ -34,6 +34,22 @@ const createReducer = <T extends DataType>() => (
         );
       }
 
+      if (state.sortColumn) {
+        console.log(`sorting by ${state.sortColumn}`);
+        const sortedRows = sortByColumn(
+          action.data,
+          state.sortColumn,
+          state.columns
+        );
+        console.log(JSON.stringify({ sortedRows }, null, 2));
+        //console.log({ sortedRows });
+        return {
+          ...state,
+          rows: sortedRows,
+          originalRows: action.data,
+        };
+      }
+
       return {
         ...state,
         rows: rows,
