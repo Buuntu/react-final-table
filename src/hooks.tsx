@@ -21,34 +21,22 @@ const createReducer = <T extends DataType>() => (
 ): TableState<T> => {
   switch (action.type) {
     case 'SET_ROWS':
-      if (state.paginationEnabled === true) {
-        return {
-          ...state,
-          rows: getPaginatedData(
-            action.data,
-            state.pagination.perPage,
-            state.pagination.page
-          ),
-          originalRows: action.data,
-        };
+      let rows = [...action.data];
+      if (state.sortColumn) {
+        rows = sortByColumn(action.data, state.sortColumn, state.columns);
       }
 
-      if (state.sortColumn) {
-        const sortedRows = sortByColumn(
-          action.data,
-          state.sortColumn,
-          state.columns
+      if (state.paginationEnabled === true) {
+        rows = getPaginatedData(
+          rows,
+          state.pagination.perPage,
+          state.pagination.page
         );
-        return {
-          ...state,
-          rows: sortedRows,
-          originalRows: action.data,
-        };
       }
 
       return {
         ...state,
-        rows: action.data,
+        rows: rows,
         originalRows: action.data,
       };
 
