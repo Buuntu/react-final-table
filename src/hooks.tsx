@@ -34,17 +34,12 @@ const createReducer = <T extends DataType>() => (
         );
       }
 
-      if (state.sortColumn) {
-        const sortedRows = sortByColumn(
-          action.data,
-          state.sortColumn,
-          state.columns
+      if (state.paginationEnabled === true) {
+        rows = getPaginatedData(
+          rows,
+          state.pagination.perPage,
+          state.pagination.page
         );
-        return {
-          ...state,
-          rows: sortedRows,
-          originalRows: action.data,
-        };
       }
 
       return {
