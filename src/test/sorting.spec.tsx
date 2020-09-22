@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { render, fireEvent, within, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -13,42 +13,57 @@ const Table = <T extends {}>({
   columns: ColumnType<T>[];
   data: T[];
 }) => {
-  const { headers, rows, toggleSort } = useTable(columns, data, {
+  const [stateDate, setStateDate] = useState(data);
+
+  const { headers, rows, toggleSort } = useTable(columns, stateDate, {
     sortable: true,
   });
 
   return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, idx) => (
-            <th
-              key={idx}
-              data-testid={`column-${header.name}`}
-              onClick={() => toggleSort(header.name)}
-            >
-              {header.label}
+    <>
+      <table>
+        <thead>
+          <tr>
+            {headers.map((header, idx) => (
+              <th
+                key={idx}
+                data-testid={`column-${header.name}`}
+                onClick={() => toggleSort(header.name)}
+              >
+                {header.label}
 
-              {header.sorted && header.sorted.on ? (
-                <span data-testid={`sorted-${header.name}`}></span>
-              ) : null}
-            </th>
-          ))}
-          <th data-testid="not-a-column" onClick={() => toggleSort('fake')}>
-            Fake column
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, idx) => (
-          <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
-            {row.cells.map((cell, idx) => (
-              <td key={idx}>{cell.render()}</td>
+                {header.sorted && header.sorted.on ? (
+                  <span data-testid={`sorted-${header.name}`}></span>
+                ) : null}
+              </th>
             ))}
+            <th data-testid="not-a-column" onClick={() => toggleSort('fake')}>
+              Fake column
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row, idx) => (
+            <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
+              {row.cells.map((cell, idx) => (
+                <td key={idx}>{cell.render()}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button
+        data-testid="add-row"
+        onClick={() =>
+          setStateDate([
+            ...data,
+            { ...data[0], firstName: 'new', lastName: 'person' },
+          ])
+        }
+      >
+        Add Row
+      </button>
+    </>
   );
 };
 
@@ -77,6 +92,38 @@ test('Should render a table with sorting enabled', () => {
 
   ({ getByText } = within(firstRow));
   expect(getByText('Yesenia')).toBeInTheDocument();
+});
+
+test('Should render a table and preserve sorting when data changes', () => {
+  const { columns: userCols, data: userData } = makeData(10);
+  render(<Table columns={userCols} data={userData} />);
+
+  const firstNameColumn = screen.getByTestId('column-firstName');
+  const addRowButton = screen.getByTestId('add-row');
+
+  expect(screen.queryAllByRole('table-row')).toHaveLength(10);
+
+  let firstRow = screen.getByTestId('row-0');
+
+  // should be sorted in ascending order
+  fireEvent.click(firstNameColumn);
+
+  let { getByText } = within(firstRow);
+  expect(getByText('Faulkner')).toBeInTheDocument();
+
+  fireEvent.click(addRowButton);
+
+  expect(screen.queryAllByRole('table-row')).toHaveLength(11);
+
+  ({ getByText } = within(firstRow));
+  expect(getByText('Faulkner')).toBeInTheDocument();
+
+  fireEvent.click(addRowButton);
+
+  // expect(screen.queryAllByRole('table-row')).toHaveLength(12);
+
+  ({ getByText } = within(firstRow));
+  expect(getByText('Faulkner')).toBeInTheDocument();
 });
 
 test('Should sort by dates correctly', () => {

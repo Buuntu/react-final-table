@@ -21,21 +21,22 @@ const createReducer = <T extends DataType>() => (
 ): TableState<T> => {
   switch (action.type) {
     case 'SET_ROWS':
+      let rows = [...action.data];
+      if (state.sortColumn) {
+        rows = sortByColumn(action.data, state.sortColumn, state.columns);
+      }
+
       if (state.paginationEnabled === true) {
-        return {
-          ...state,
-          rows: getPaginatedData(
-            action.data,
-            state.pagination.perPage,
-            state.pagination.page
-          ),
-          originalRows: action.data,
-        };
+        rows = getPaginatedData(
+          rows,
+          state.pagination.perPage,
+          state.pagination.page
+        );
       }
 
       return {
         ...state,
-        rows: action.data,
+        rows: rows,
         originalRows: action.data,
       };
 
@@ -125,6 +126,7 @@ const createReducer = <T extends DataType>() => (
         ...state,
         columns: columnCopy,
         rows: sortedRows,
+        sortColumn: action.columnName,
         columnsByName: getColumnsByName(columnCopy),
       };
     case 'GLOBAL_FILTER':
@@ -280,6 +282,7 @@ export const useTable = <T extends DataType>(
     selectedRows: [],
     toggleAllState: false,
     filterOn: !!options?.filter,
+    sortColumn: null,
     paginationEnabled: !!options?.pagination,
     pagination: {
       page: 1,
@@ -367,6 +370,35 @@ const sortDataInOrder = <T extends DataType>(
     });
     return newRow;
   });
+};
+
+const sortByColumn = <T extends DataType>(
+  data: RowType<T>[],
+  sortColumn: string,
+  columns: ColumnStateType<T>[]
+): RowType<T>[] => {
+  let isAscending = null;
+  let sortedRows: RowType<T>[] = [...data];
+  // loop through all columns and set the sort parameter to off unless
+  // it's the specified column (only one column at a time for )
+  columns.map(column => {
+    // if the row was found
+    if (sortColumn === column.name) {
+      isAscending = !column.sorted.asc;
+      if (column.sort) {
+        sortedRows = isAscending
+          ? data.sort(column.sort)
+          : data.sort(column.sort).reverse();
+        // default to sort by string
+      } else {
+        sortedRows = isAscending
+          ? data.sort(byTextAscending(object => object.original[sortColumn]))
+          : data.sort(byTextDescending(object => object.original[sortColumn]));
+      }
+    }
+  });
+
+  return sortedRows;
 };
 
 const getColumnsByName = <T extends DataType>(
