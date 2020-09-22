@@ -34,14 +34,11 @@ const createReducer = <T extends DataType>() => (
       }
 
       if (state.sortColumn) {
-        console.log(`sorting by ${state.sortColumn}`);
         const sortedRows = sortByColumn(
           action.data,
           state.sortColumn,
           state.columns
         );
-        console.log(JSON.stringify({ sortedRows }, null, 2));
-        //console.log({ sortedRows });
         return {
           ...state,
           rows: sortedRows,
@@ -399,7 +396,6 @@ const sortByColumn = <T extends DataType>(
   columns.map(column => {
     // if the row was found
     if (sortColumn === column.name) {
-      console.log('sorting!');
       isAscending = !column.sorted.asc;
       if (column.sort) {
         sortedRows = isAscending
