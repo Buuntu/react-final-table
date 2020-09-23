@@ -14,7 +14,7 @@ export type ColumnStateType<T> = {
   sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
   sorted: {
     on: boolean;
-    asc: boolean;
+    asc?: boolean;
   };
   headerRender?: HeaderRenderType;
 };
@@ -28,7 +28,7 @@ export type HeaderType<T> = {
   hidden?: boolean;
   sorted: {
     on: boolean;
-    asc: boolean;
+    asc?: boolean;
   };
   sort?: ((a: RowType<T>, b: RowType<T>) => number) | undefined;
   render: () => React.ReactNode;

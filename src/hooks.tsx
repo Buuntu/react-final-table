@@ -22,6 +22,7 @@ const createReducer = <T extends DataType>() => (
   switch (action.type) {
     case 'SET_ROWS':
       let rows = [...action.data];
+      // preserve sorting if a sort is already enabled when data changes
       if (state.sortColumn) {
         rows = sortByColumn(action.data, state.sortColumn, state.columns);
       }
@@ -44,7 +45,7 @@ const createReducer = <T extends DataType>() => (
 
       return {
         ...state,
-        rows: rows,
+        rows,
         originalRows: action.data,
       };
 
@@ -98,7 +99,9 @@ const createReducer = <T extends DataType>() => (
       const columnCopy = state.columns.map(column => {
         // if the row was found
         if (action.columnName === column.name) {
-          isAscending = column.sorted.asc;
+          // if it's undefined, start by setting to ascending, otherwise toggle
+          isAscending =
+            column.sorted.asc === undefined ? true : !column.sorted.asc;
           if (column.sort) {
             sortedRows = isAscending
               ? state.rows.sort(column.sort)
@@ -117,15 +120,16 @@ const createReducer = <T extends DataType>() => (
             ...column,
             sorted: {
               on: true,
-              asc: !column.sorted.asc,
+              asc: isAscending,
             },
           };
         }
+        // set sorting to false for all other columns
         return {
           ...column,
           sorted: {
             on: false,
-            asc: true,
+            asc: false,
           },
         };
       });
@@ -246,7 +250,6 @@ export const useTable = <T extends DataType>(
           sort: column.sort,
           sorted: {
             on: false,
-            asc: true,
           },
         };
       }),
@@ -387,12 +390,12 @@ const sortByColumn = <T extends DataType>(
 ): RowType<T>[] => {
   let isAscending = null;
   let sortedRows: RowType<T>[] = [...data];
-  // loop through all columns and set the sort parameter to off unless
-  // it's the specified column (only one column at a time for )
+
   columns.map(column => {
     // if the row was found
     if (sortColumn === column.name) {
-      isAscending = !column.sorted.asc;
+      isAscending = column.sorted.asc;
+
       if (column.sort) {
         sortedRows = isAscending
           ? data.sort(column.sort)
