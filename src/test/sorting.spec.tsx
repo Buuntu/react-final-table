@@ -118,12 +118,14 @@ test('Should render a table and preserve sorting when data changes', () => {
   ({ getByText } = within(firstRow));
   expect(getByText('Faulkner')).toBeInTheDocument();
 
+  fireEvent.click(firstNameColumn);
+
+  ({ getByText } = within(firstRow));
+  expect(getByText('Yesenia')).toBeInTheDocument();
+
   fireEvent.click(addRowButton);
 
   // expect(screen.queryAllByRole('table-row')).toHaveLength(12);
-
-  ({ getByText } = within(firstRow));
-  expect(getByText('Faulkner')).toBeInTheDocument();
 });
 
 test('Should sort by dates correctly', () => {
