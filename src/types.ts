@@ -102,7 +102,7 @@ export interface UseTableReturnType<T> {
   rows: RowType<T>[];
   selectedRows: RowType<T>[];
   dispatch: React.Dispatch<TableAction<T>>;
-  toggleSort: (columnName: string) => void;
+  toggleSort: (columnName: string, isAscOverride?: boolean) => void;
   selectRow: (id: number) => void;
   toggleAll: () => void;
   setSearchString: (searchString: string) => void;
@@ -133,7 +133,7 @@ export type TableState<T extends DataType> = {
 };
 
 export type TableAction<T extends DataType> =
-  | { type: 'TOGGLE_SORT'; columnName: string }
+  | { type: 'TOGGLE_SORT'; columnName: string; isAscOverride?: boolean }
   | { type: 'SELECT_ROW'; rowId: number }
   | { type: 'GLOBAL_FILTER'; filter: (row: RowType<T>[]) => RowType<T>[] }
   | { type: 'SEARCH_STRING'; searchString: string }
