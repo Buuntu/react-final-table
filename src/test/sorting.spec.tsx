@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState } from 'react';
 import { render, fireEvent, within, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -53,7 +53,7 @@ const Table = <T extends {}>({
         </tbody>
       </table>
       {headers.map((header, idx) => (
-        <Fragment>
+        <>
           <button
             key={idx}
             data-testid={`toggle-sort-asc-cta-${header.name}`}
@@ -68,7 +68,7 @@ const Table = <T extends {}>({
           >
             Sort Desc
           </button>
-        </Fragment>
+        </>
       ))}
       <button
         data-testid="add-row"
