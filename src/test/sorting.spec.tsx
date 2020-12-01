@@ -52,6 +52,24 @@ const Table = <T extends {}>({
           ))}
         </tbody>
       </table>
+      {headers.map((header, idx) => (
+        <>
+          <button
+            key={idx}
+            data-testid={`toggle-sort-asc-cta-${header.name}`}
+            onClick={() => toggleSort(header.name, true)}
+          >
+            Sort Asc
+          </button>
+          <button
+            key={idx}
+            data-testid={`toggle-sort-desc-cta-${header.name}`}
+            onClick={() => toggleSort(header.name, false)}
+          >
+            Sort Desc
+          </button>
+        </>
+      ))}
       <button
         data-testid="add-row"
         onClick={() =>
@@ -126,6 +144,50 @@ test('Should render a table and preserve sorting when data changes', () => {
   fireEvent.click(addRowButton);
 
   // expect(screen.queryAllByRole('table-row')).toHaveLength(12);
+});
+
+test('Should override sort order', () => {
+  const { columns, data } = makeSimpleData<{
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+  }>();
+
+  const dataToSortDesc = [...data];
+  dataToSortDesc[1].firstName = 'Zippy';
+
+  render(<Table columns={columns} data={dataToSortDesc} />);
+
+  const sortFirstNameDescCta = screen.getByTestId(
+    'toggle-sort-desc-cta-firstName'
+  );
+  const sortFirstNameAscCta = screen.getByTestId(
+    'toggle-sort-asc-cta-firstName'
+  );
+
+  // should be sorted in descending order
+  fireEvent.click(sortFirstNameDescCta);
+  let firstRow = screen.getByTestId('row-0');
+  let { getByText } = within(firstRow);
+  expect(getByText('Zippy')).toBeInTheDocument();
+
+  // should (still) be sorted in descending order
+  fireEvent.click(sortFirstNameDescCta);
+  firstRow = screen.getByTestId('row-0');
+  ({ getByText } = within(firstRow));
+  expect(getByText('Zippy')).toBeInTheDocument();
+
+  // should be sorted in ascending order
+  fireEvent.click(sortFirstNameAscCta);
+  firstRow = screen.getByTestId('row-0');
+  ({ getByText } = within(firstRow));
+  expect(getByText('Bilbo')).toBeInTheDocument();
+
+  // should (still) be sorted in ascending order
+  fireEvent.click(sortFirstNameAscCta);
+  firstRow = screen.getByTestId('row-0');
+  ({ getByText } = within(firstRow));
+  expect(getByText('Bilbo')).toBeInTheDocument();
 });
 
 test('Should sort by dates correctly', () => {

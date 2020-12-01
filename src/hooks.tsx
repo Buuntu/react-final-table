@@ -99,9 +99,15 @@ const createReducer = <T extends DataType>() => (
       const columnCopy = state.columns.map(column => {
         // if the row was found
         if (action.columnName === column.name) {
-          // if it's undefined, start by setting to ascending, otherwise toggle
-          isAscending =
-            column.sorted.asc === undefined ? true : !column.sorted.asc;
+          if (action.isAscOverride !== undefined) {
+            // force the sort order
+            isAscending = action.isAscOverride;
+          } else {
+            // if it's undefined, start by setting to ascending, otherwise toggle
+            isAscending =
+              column.sorted.asc === undefined ? true : !column.sorted.asc;
+          }
+
           if (column.sort) {
             sortedRows = isAscending
               ? state.rows.sort(column.sort)
@@ -343,8 +349,8 @@ export const useTable = <T extends DataType>(
     dispatch,
     selectRow: (rowId: number) => dispatch({ type: 'SELECT_ROW', rowId }),
     toggleAll: () => dispatch({ type: 'TOGGLE_ALL' }),
-    toggleSort: (columnName: string) =>
-      dispatch({ type: 'TOGGLE_SORT', columnName }),
+    toggleSort: (columnName: string, isAscOverride?: boolean) =>
+      dispatch({ type: 'TOGGLE_SORT', columnName, isAscOverride }),
     setSearchString: (searchString: string) =>
       dispatch({ type: 'SEARCH_STRING', searchString }),
     pagination: state.pagination,
