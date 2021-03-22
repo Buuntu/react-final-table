@@ -66,5 +66,17 @@
     "url": "https://github.com/Buuntu/react-final-table/issues"
   },
   "homepage": "https://github.com/Buuntu/react-final-table#readme",
-  "dependencies": {}
+  "dependencies": {},
+  "keywords": [
+    "react",
+    "typescript",
+    "table",
+    "headless",
+    "reacthooks"
+  ],
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist/react-final-table.esm.js",
+    "default": "./dist/index.js"
+  }
 }
