@@ -1,9 +1,12 @@
 {
+  "name": "react-final-table",
   "version": "1.4.2",
   "license": "MIT",
   "author": "Gabriel Abud",
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "module": "dist/react-final-table.esm.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "files": [
     "dist",
     "src"
@@ -35,8 +38,6 @@
     }
   },
   "testEnvironment": "jest-environment-jsdom-sixteen",
-  "name": "react-final-table",
-  "module": "dist/react-final-table.esm.js",
   "devDependencies": {
     "@babel/core": "^7.11.4",
     "@testing-library/jest-dom": "^5.11.3",
@@ -66,17 +67,19 @@
     "url": "https://github.com/Buuntu/react-final-table/issues"
   },
   "homepage": "https://github.com/Buuntu/react-final-table#readme",
-  "dependencies": {},
   "keywords": [
     "react",
+    "hooks",
     "typescript",
     "table",
     "headless",
-    "reacthooks"
+    "react-hooks"
   ],
   "exports": {
-    "require": "./dist/index.js",
-    "import": "./dist/react-final-table.esm.js",
-    "default": "./dist/index.js"
+    "./package.json": "./package.json",
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/react-final-table.esm.js"
+    }
   }
 }
