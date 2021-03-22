@@ -8,7 +8,7 @@ You can use a Codesandbox environment or one of the examples in the examples fol
 
 ## Testing
 
-All tests must pass. If you submit a PR with a bug fix or a new feature, it is unlikely to be approved without 100% diff coverage. To run the tests with coverage, run: `npm run test-coverage`.
+All tests must pass. If you submit a PR with a bug fix or a new feature, it is unlikely to be approved without 100% diff coverage. To run the tests with coverage, run: `npm run test:coverage`.
 
 ## Commit Messages
 

@@ -288,7 +288,7 @@ export type UserType = {
   address: string;
 };
 
-export const makeData = <T extends {}>(
+export const makeData = <T extends Record<string, unknown>>(
   rowNum: number
 ): { columns: ColumnType<T>[]; data: UserType[] } => {
   return {

@@ -29,19 +29,16 @@ const characters: CharacterType[] = [
 ];
 
 test('Should sort characters by first name ascending', () => {
-  const sortedCharacters = characters.sort(
-    byTextAscending((character: CharacterType) => character.firstName)
+  const sortedCharacters = [...characters].sort(
+    byTextAscending(character => character.firstName)
   );
-
-  expect((sortedCharacters[0] = { firstName: 'Aragorn', lastName: 'Elessar' }));
+  expect(sortedCharacters[0]).toEqual(characters[2]);
 });
 
 test('Should sort characters by last name descending', () => {
-  const sortedCharacters = characters.sort(
-    byTextDescending((character: CharacterType) => character.lastName)
+  const sortedCharacters = [...characters].sort(
+    byTextDescending(character => character.lastName)
   );
 
-  expect(
-    (sortedCharacters[0] = { firstName: 'Legolas', lastName: 'Greenleaf' })
-  );
+  expect(sortedCharacters[0]).toEqual(characters[3]);
 });

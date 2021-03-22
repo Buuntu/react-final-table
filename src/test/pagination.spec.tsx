@@ -1,9 +1,8 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-import { useTable } from '../hooks';
+import { render, fireEvent } from '@testing-library/react';
+import { useTable } from '../index';
 import { makeData } from './makeData';
+import { getBodyRows } from './test-helpers';
 
 const Table = ({
   columns,
@@ -29,7 +28,7 @@ const Table = ({
         </thead>
         <tbody>
           {rows.map((row, idx) => (
-            <tr role="table-row" key={idx}>
+            <tr key={idx}>
               {row.cells.map((cell, idx) => (
                 <td key={idx}>{cell.render()}</td>
               ))}
@@ -60,43 +59,43 @@ test('Should render a basic table', () => {
   const { columns, data } = makeData(20);
   const firstTenData = data.slice(0, 10);
   const nextTenData = data.slice(10, 20);
-  render(<Table columns={columns} data={data} />);
+  const table = render(<Table columns={columns} data={data} />);
 
-  const firstTen = screen.getAllByRole('table-row');
+  const firstTen = getBodyRows(table);
   expect(firstTen).toHaveLength(10);
 
-  expect(screen.getByTestId('page-number')).toContainHTML('1');
-  expect(screen.getByTestId('can-prev-page')).toContainHTML('no');
-  expect(screen.getByTestId('can-next-page')).toContainHTML('yes');
+  expect(table.getByTestId('page-number')).toContainHTML('1');
+  expect(table.getByTestId('can-prev-page')).toContainHTML('no');
+  expect(table.getByTestId('can-next-page')).toContainHTML('yes');
 
-  screen.getByText(firstTenData[0].firstName);
-  screen.getByText(firstTenData[9].firstName);
+  table.getByText(firstTenData[0].firstName);
+  table.getByText(firstTenData[9].firstName);
 
-  const nextPage = screen.getByTestId('next-page');
-  const prevPage = screen.getByTestId('prev-page');
+  const nextPage = table.getByTestId('next-page');
+  const prevPage = table.getByTestId('prev-page');
 
   fireEvent.click(nextPage);
 
-  expect(screen.getByTestId('can-prev-page')).toContainHTML('yes');
-  expect(screen.getByTestId('can-next-page')).toContainHTML('no');
+  expect(table.getByTestId('can-prev-page')).toContainHTML('yes');
+  expect(table.getByTestId('can-next-page')).toContainHTML('no');
 
-  const nextTen = screen.getAllByRole('table-row');
+  const nextTen = getBodyRows(table);
 
   expect(nextTen).toHaveLength(10);
 
-  expect(screen.getByTestId('page-number')).toContainHTML('2');
+  expect(table.getByTestId('page-number')).toContainHTML('2');
 
-  screen.getByText(nextTenData[0].firstName);
-  screen.getByText(nextTenData[9].firstName);
+  table.getByText(nextTenData[0].firstName);
+  table.getByText(nextTenData[9].firstName);
 
   fireEvent.click(prevPage);
 
-  expect(screen.getByTestId('page-number')).toContainHTML('1');
+  expect(table.getByTestId('page-number')).toContainHTML('1');
 
   expect(nextTen).toHaveLength(10);
 
   // on page 1, clicking previous should do nothing
   fireEvent.click(prevPage);
 
-  expect(screen.getByTestId('page-number')).toContainHTML('1');
+  expect(table.getByTestId('page-number')).toContainHTML('1');
 });

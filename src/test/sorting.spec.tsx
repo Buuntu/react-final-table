@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { render, fireEvent, within, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-import { useTable } from '../hooks';
-import { ColumnType } from '../types';
+import { render, fireEvent } from '@testing-library/react';
+import { useTable, ColumnType } from '../index';
 import { makeData, makeSimpleData } from './makeData';
+import { getBodyRows, getRow } from './test-helpers';
 
 const Table = <T extends {}>({
   columns,
@@ -44,7 +42,7 @@ const Table = <T extends {}>({
         </thead>
         <tbody>
           {rows.map((row, idx) => (
-            <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
+            <tr data-testid={`row-${idx}`} key={idx}>
               {row.cells.map((cell, idx) => (
                 <td key={idx}>{cell.render()}</td>
               ))}
@@ -87,63 +85,55 @@ const Table = <T extends {}>({
 
 test('Should render a table with sorting enabled', () => {
   const { columns: userCols, data: userData } = makeData(10);
-  render(<Table columns={userCols} data={userData} />);
+  const table = render(<Table columns={userCols} data={userData} />);
 
-  const firstNameColumn = screen.getByTestId('column-firstName');
+  const firstNameColumn = table.getByTestId('column-firstName');
 
-  expect(screen.queryAllByRole('table-row')).toHaveLength(10);
+  expect(getBodyRows(table)).toHaveLength(10);
 
   // should be sorted in ascending order
   fireEvent.click(firstNameColumn);
 
-  let firstRow = screen.getByTestId('row-0');
+  expect(table.queryByTestId('sorted-firstName')).toBeInTheDocument();
 
-  expect(screen.queryByTestId('sorted-firstName')).toBeInTheDocument();
-
-  let { getByText } = within(firstRow);
-  expect(getByText('Faulkner')).toBeInTheDocument();
+  let firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Faulkner')).toBeInTheDocument();
 
   // should be sorted in descending order
   fireEvent.click(firstNameColumn);
 
-  firstRow = screen.getByTestId('row-0');
-
-  ({ getByText } = within(firstRow));
-  expect(getByText('Yesenia')).toBeInTheDocument();
+  firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Yesenia')).toBeInTheDocument();
 });
 
 test('Should render a table and preserve sorting when data changes', () => {
   const { columns: userCols, data: userData } = makeData(10);
-  render(<Table columns={userCols} data={userData} />);
+  const table = render(<Table columns={userCols} data={userData} />);
 
-  const firstNameColumn = screen.getByTestId('column-firstName');
-  const addRowButton = screen.getByTestId('add-row');
+  const firstNameColumn = table.getByTestId('column-firstName');
+  const addRowButton = table.getByTestId('add-row');
 
-  expect(screen.queryAllByRole('table-row')).toHaveLength(10);
-
-  let firstRow = screen.getByTestId('row-0');
+  expect(getBodyRows(table)).toHaveLength(10);
 
   // should be sorted in ascending order
   fireEvent.click(firstNameColumn);
 
-  let { getByText } = within(firstRow);
-  expect(getByText('Faulkner')).toBeInTheDocument();
+  let firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Faulkner')).toBeInTheDocument();
 
   fireEvent.click(addRowButton);
 
-  expect(screen.queryAllByRole('table-row')).toHaveLength(11);
+  expect(getBodyRows(table)).toHaveLength(11);
 
-  ({ getByText } = within(firstRow));
-  expect(getByText('Faulkner')).toBeInTheDocument();
+  expect(firstRow.getByText('Faulkner')).toBeInTheDocument();
 
   fireEvent.click(firstNameColumn);
 
-  ({ getByText } = within(firstRow));
-  expect(getByText('Yesenia')).toBeInTheDocument();
+  expect(firstRow.getByText('Yesenia')).toBeInTheDocument();
 
   fireEvent.click(addRowButton);
 
-  // expect(screen.queryAllByRole('table-row')).toHaveLength(12);
+  // expect(getBodyRows(table)).toHaveLength(12);
 });
 
 test('Should override sort order', () => {
@@ -156,38 +146,34 @@ test('Should override sort order', () => {
   const dataToSortDesc = [...data];
   dataToSortDesc[1].firstName = 'Zippy';
 
-  render(<Table columns={columns} data={dataToSortDesc} />);
+  const table = render(<Table columns={columns} data={dataToSortDesc} />);
 
-  const sortFirstNameDescCta = screen.getByTestId(
+  const sortFirstNameDescCta = table.getByTestId(
     'toggle-sort-desc-cta-firstName'
   );
-  const sortFirstNameAscCta = screen.getByTestId(
+  const sortFirstNameAscCta = table.getByTestId(
     'toggle-sort-asc-cta-firstName'
   );
 
   // should be sorted in descending order
   fireEvent.click(sortFirstNameDescCta);
-  let firstRow = screen.getByTestId('row-0');
-  let { getByText } = within(firstRow);
-  expect(getByText('Zippy')).toBeInTheDocument();
+  let firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Zippy')).toBeInTheDocument();
 
   // should (still) be sorted in descending order
   fireEvent.click(sortFirstNameDescCta);
-  firstRow = screen.getByTestId('row-0');
-  ({ getByText } = within(firstRow));
-  expect(getByText('Zippy')).toBeInTheDocument();
+  firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Zippy')).toBeInTheDocument();
 
   // should be sorted in ascending order
   fireEvent.click(sortFirstNameAscCta);
-  firstRow = screen.getByTestId('row-0');
-  ({ getByText } = within(firstRow));
-  expect(getByText('Bilbo')).toBeInTheDocument();
+  firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Bilbo')).toBeInTheDocument();
 
   // should (still) be sorted in ascending order
   fireEvent.click(sortFirstNameAscCta);
-  firstRow = screen.getByTestId('row-0');
-  ({ getByText } = within(firstRow));
-  expect(getByText('Bilbo')).toBeInTheDocument();
+  firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Bilbo')).toBeInTheDocument();
 });
 
 test('Should sort by dates correctly', () => {
@@ -206,33 +192,29 @@ test('Should sort by dates correctly', () => {
       );
     },
   };
-  render(<Table columns={columns} data={data} />);
+  const table = render(<Table columns={columns} data={data} />);
 
-  const dateColumn = screen.getByTestId('column-birthDate');
+  const dateColumn = table.getByTestId('column-birthDate');
 
   // should be sorted in ascending order
   fireEvent.click(dateColumn);
 
-  expect(screen.queryByTestId('sorted-birthDate')).toBeInTheDocument();
+  expect(table.queryByTestId('sorted-birthDate')).toBeInTheDocument();
 
-  let firstRow = screen.getByTestId('row-0');
-  let lastRow = screen.getByTestId('row-2');
+  let firstRow = getRow(table, 0);
+  let lastRow = getRow(table, 2);
 
-  let { getByText } = within(firstRow);
-  expect(getByText('Bilbo')).toBeInTheDocument();
-  ({ getByText } = within(lastRow));
-  expect(getByText('Frodo')).toBeInTheDocument();
+  expect(firstRow.getByText('Bilbo')).toBeInTheDocument();
+  expect(lastRow.getByText('Frodo')).toBeInTheDocument();
 
   // should be sorted in descending order
   fireEvent.click(dateColumn);
 
-  firstRow = screen.getByTestId('row-0');
-  lastRow = screen.getByTestId('row-2');
+  firstRow = getRow(table, 0);
+  lastRow = getRow(table, 2);
 
-  ({ getByText } = within(firstRow));
-  expect(getByText('Frodo')).toBeInTheDocument();
-  ({ getByText } = within(lastRow));
-  expect(getByText('Bilbo')).toBeInTheDocument();
+  expect(firstRow.getByText('Frodo')).toBeInTheDocument();
+  expect(lastRow.getByText('Bilbo')).toBeInTheDocument();
 });
 
 beforeEach(() => {
@@ -241,9 +223,9 @@ beforeEach(() => {
 
 test('Should throw error when sorting a column that does not exist', () => {
   const { columns, data } = makeSimpleData();
-  render(<Table columns={columns} data={data} />);
+  const table = render(<Table columns={columns} data={data} />);
 
-  const button = screen.getByTestId('not-a-column');
+  const button = table.getByTestId('not-a-column');
 
   expect(() => fireEvent.click(button)).toThrowError();
 });
