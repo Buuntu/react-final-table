@@ -27,15 +27,7 @@ const createReducer = <T extends DataType>() => (
         rows = sortByColumn(action.data, state.sortColumn, state.columns);
       }
 
-      if (state.paginationEnabled === true) {
-        rows = getPaginatedData(
-          rows,
-          state.pagination.perPage,
-          state.pagination.page
-        );
-      }
-
-      if (state.paginationEnabled === true) {
+      if (state.paginationEnabled) {
         rows = getPaginatedData(
           rows,
           state.pagination.perPage,
