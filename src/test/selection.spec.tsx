@@ -128,27 +128,31 @@ const TableWithSelectionAndFiltering = <T extends DataType>({
   const [searchString, setSearchString] = useState('');
   const [filterOn, setFilterOn] = useState(false);
 
-  const { headers, rows, selectRow, selectedRows } = useTable(columns, data, {
-    selectable: true,
-    filter: useCallback(
-      (rows: RowType<T>[]) => {
-        return rows.filter(row => {
-          return (
-            row.cells.filter(cell => {
-              if (typeof cell.value !== 'string') {
-                return false;
-              }
+  const { headers, rows, selectRow, selectedRows, toggleAll } = useTable(
+    columns,
+    data,
+    {
+      selectable: true,
+      filter: useCallback(
+        (rows: RowType<T>[]) => {
+          return rows.filter(row => {
+            return (
+              row.cells.filter(cell => {
+                if (typeof cell.value !== 'string') {
+                  return false;
+                }
 
-              return cell.value.toLowerCase().includes(searchString)
-                ? true
-                : false;
-            }).length > 0
-          );
-        });
-      },
-      [searchString]
-    ),
-  });
+                return cell.value.toLowerCase().includes(searchString)
+                  ? true
+                  : false;
+              }).length > 0
+            );
+          });
+        },
+        [searchString]
+      ),
+    }
+  );
 
   return (
     <>
@@ -164,6 +168,7 @@ const TableWithSelectionAndFiltering = <T extends DataType>({
       >
         Filter
       </button>
+      <button data-testid="toggle-all" onClick={() => toggleAll()}></button>
       <table>
         <thead>
           <tr>
@@ -211,6 +216,7 @@ test('Should be able to select rows while filtering', async () => {
   render(<TableWithSelectionAndFiltering columns={userCols} data={userData} />);
   let checkbox = screen.getByTestId('checkbox-0') as HTMLInputElement;
   const checkbox2 = screen.getByTestId('checkbox-1') as HTMLInputElement;
+  const toggleAllButton = screen.getByTestId('toggle-all') as HTMLInputElement;
 
   const input = screen.getByTestId('input');
 
@@ -244,6 +250,14 @@ test('Should be able to select rows while filtering', async () => {
   fireEvent.change(input, { target: { value: 'ye' } });
 
   expect(screen.queryAllByTestId('row')).toHaveLength(1);
+
+  // toggle all
+  fireEvent.click(toggleAllButton);
+  expect(screen.queryAllByTestId('selected-row')).toHaveLength(1);
+
+  // toggle all off
+  fireEvent.click(toggleAllButton);
+  expect(screen.queryAllByTestId('selected-row')).toHaveLength(0);
 
   checkbox = screen.getByTestId('checkbox-0') as HTMLInputElement;
   fireEvent.click(checkbox);

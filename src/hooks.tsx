@@ -151,7 +151,7 @@ const createReducer = <T extends DataType>() => (
       const filteredRows = action.filter(state.originalRows);
       const selectedRowsById: { [key: number]: boolean } = {};
       state.selectedRows.map(row => {
-        selectedRowsById[row.id] = row.selected ? true : false;
+        selectedRowsById[row.id] = !!row.selected;
       });
 
       return {
@@ -183,47 +183,32 @@ const createReducer = <T extends DataType>() => (
       });
 
       stateCopy.selectedRows = stateCopy.originalRows.filter(
-        row => row.selected === true
+        row => row.selected
       );
 
       stateCopy.toggleAllState =
-        stateCopy.selectedRows.length === stateCopy.rows.length
-          ? (stateCopy.toggleAllState = true)
-          : (stateCopy.toggleAllState = false);
+        stateCopy.selectedRows.length === stateCopy.rows.length;
 
       return stateCopy;
     case 'SEARCH_STRING':
       const stateCopySearch = { ...state };
-      stateCopySearch.rows = stateCopySearch.originalRows.filter(row => {
-        return (
-          row.cells.filter(cell => {
-            if (cell.value.includes(action.searchString)) {
-              return true;
-            }
-            return false;
-          }).length > 0
-        );
-      });
+      stateCopySearch.rows = stateCopySearch.originalRows.filter(
+        row =>
+          row.cells.filter(cell => cell.value.includes(action.searchString))
+            .length > 0
+      );
       return stateCopySearch;
     case 'TOGGLE_ALL':
       const stateCopyToggle = { ...state };
       const rowIds: { [key: number]: boolean } = {};
 
-      if (state.selectedRows.length < state.rows.length) {
-        stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
-          rowIds[row.id] = true;
-          return { ...row, selected: true };
-        });
+      const selected = state.selectedRows.length < state.rows.length;
+      stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
+        rowIds[row.id] = selected;
+        return { ...row, selected };
+      });
 
-        stateCopyToggle.toggleAllState = true;
-      } else {
-        stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
-          rowIds[row.id] = false;
-
-          return { ...row, selected: false };
-        });
-        stateCopyToggle.toggleAllState = false;
-      }
+      stateCopyToggle.toggleAllState = selected;
 
       stateCopyToggle.originalRows = stateCopyToggle.originalRows.map(row => {
         return row.id in rowIds
