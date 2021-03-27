@@ -45,7 +45,7 @@ const columns = [
   },
 ];
 
-type DataType = { first_name: string, last_name: string, date_born: string };
+type DataType = { first_name: string; last_name: string; date_born: string };
 
 const data: DataType[] = [
   {

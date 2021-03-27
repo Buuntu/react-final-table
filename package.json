@@ -39,7 +39,6 @@
     "prepare": "tsdx build",
     "watch": "tsdx watch"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.11.4",
     "@testing-library/jest-dom": "^5.11.3",
