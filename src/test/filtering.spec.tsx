@@ -1,10 +1,8 @@
 import React, { FC } from 'react';
-import { render, fireEvent, within, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
-import { useTable } from '../hooks';
+import { render, fireEvent } from '@testing-library/react';
+import { useTable, DataType, ColumnType, RowType } from '../index';
 import { makeSimpleData } from './makeData';
-import { DataType, ColumnType, RowType } from 'types';
+import { getBodyRows, getRow } from './test-helpers';
 
 const TableWithFilter = <T extends DataType>({
   columns,
@@ -43,7 +41,7 @@ const TableWithFilter = <T extends DataType>({
 
 test('Should be able to filter rows', () => {
   const { columns, data } = makeSimpleData();
-  render(
+  const table = render(
     <TableWithFilter
       columns={columns}
       data={data}
@@ -54,7 +52,7 @@ test('Should be able to filter rows', () => {
   );
 
   // there are 3 total rows, so both idx=0 and idx=2 will be true
-  expect(screen.getAllByTestId('table-row')).toHaveLength(2);
+  expect(getBodyRows(table)).toHaveLength(2);
 });
 
 test('Should filter by text', () => {
@@ -98,7 +96,7 @@ test('Should filter by text', () => {
           </thead>
           <tbody>
             {rows.map((row, idx) => (
-              <tr data-testid={`row-${idx}`} role="table-row" key={idx}>
+              <tr data-testid={`row-${idx}`} key={idx}>
                 {row.cells.map((cell, idx) => (
                   <td key={idx}>{cell.render()}</td>
                 ))}
@@ -114,20 +112,18 @@ test('Should filter by text', () => {
 
   const input = table.getByTestId('input');
 
-  expect(table.getAllByRole('table-row')).toHaveLength(3);
+  expect(getBodyRows(table)).toHaveLength(3);
 
   fireEvent.change(input, { target: { value: 'Frodo' } });
 
-  expect(table.getAllByRole('table-row')).toHaveLength(1);
-  let firstRow = table.getByTestId('row-0');
-
-  let { getByText } = within(firstRow);
-  expect(getByText('Frodo')).toBeInTheDocument();
+  expect(getBodyRows(table)).toHaveLength(1);
+  let firstRow = getRow(table, 0);
+  expect(firstRow.getByText('Frodo')).toBeInTheDocument();
 
   fireEvent.change(input, { target: { value: '' } });
   expect(table.getByText('Bilbo')).toBeInTheDocument();
-  expect(table.getAllByRole('table-row')).toHaveLength(3);
+  expect(getBodyRows(table)).toHaveLength(3);
 
   fireEvent.change(input, { target: { value: 'Bag' } });
-  expect(table.getAllByRole('table-row')).toHaveLength(2);
+  expect(getBodyRows(table)).toHaveLength(2);
 });

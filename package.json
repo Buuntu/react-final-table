@@ -21,7 +21,7 @@
     "build": "tsdx build",
     "test": "tsdx test --passWithNoTests",
     "test:watch": "tsdx test --passWithNoTests --watch",
-    "test-coverage": "tsdx test --passWithNoTests --collect-coverage",
+    "test:coverage": "tsdx test --passWithNoTests --collect-coverage",
     "lint": "tsdx lint",
     "prepare": "tsdx build",
     "watch": "tsdx watch"

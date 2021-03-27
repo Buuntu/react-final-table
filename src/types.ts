@@ -34,7 +34,7 @@ export type HeaderType<T> = {
   render: () => React.ReactNode;
 };
 
-export type DataType = { [key: string]: any };
+export type DataType = Record<string, any>;
 
 export type ColumnByNamesType<T> = {
   [key: string]: ColumnType<T>;

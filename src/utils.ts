@@ -1,5 +1,5 @@
-export const byTextAscending = <T extends {}>(
-  getTextProperty: (object: T) => String
+export const byTextAscending = <T extends Record<string, any>>(
+  getTextProperty: (object: T) => string
 ) => (objectA: T, objectB: T) => {
   const upperA = getTextProperty(objectA).toUpperCase();
   const upperB = getTextProperty(objectB).toUpperCase();
@@ -12,8 +12,8 @@ export const byTextAscending = <T extends {}>(
   return 0;
 };
 
-export const byTextDescending = <T extends {}>(
-  getTextProperty: (object: T) => String
+export const byTextDescending = <T extends Record<string, any>>(
+  getTextProperty: (object: T) => string
 ) => (objectA: T, objectB: T) => {
   const upperA = getTextProperty(objectA).toUpperCase();
   const upperB = getTextProperty(objectB).toUpperCase();

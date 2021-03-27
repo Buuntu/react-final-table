@@ -137,7 +137,7 @@ const createReducer = <T extends DataType>() => (
     case 'GLOBAL_FILTER':
       const filteredRows = action.filter(state.originalRows);
       const selectedRowsById: { [key: number]: boolean } = {};
-      state.selectedRows.map(row => {
+      state.selectedRows.forEach(row => {
         selectedRowsById[row.id] = !!row.selected;
       });
 
@@ -307,11 +307,12 @@ export const useTable = <T extends DataType>(
     ];
   }, [state.columns]);
 
+  const filter = options?.filter;
   useEffect(() => {
-    if (options && options.filter) {
-      dispatch({ type: 'GLOBAL_FILTER', filter: options.filter });
+    if (filter) {
+      dispatch({ type: 'GLOBAL_FILTER', filter });
     }
-  }, [options?.filter]);
+  }, [filter]);
 
   return {
     headers: headers.filter(column => !column.hidden),
@@ -369,7 +370,7 @@ const sortByColumn = <T extends DataType>(
   let isAscending: boolean | null | undefined = null;
   let sortedRows: RowType<T>[] = [...data];
 
-  columns.map(column => {
+  columns.forEach(column => {
     // if the row was found
     if (sortColumn === column.name) {
       isAscending = column.sorted.asc;
