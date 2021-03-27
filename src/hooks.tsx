@@ -13,7 +13,7 @@ import {
   HeaderRenderType,
   ColumnStateType,
 } from './types';
-import { byTextAscending, byTextDescending } from './utils';
+import { byTextAscending } from './utils';
 
 const createReducer = <T extends DataType>() => (
   state: TableState<T>,
@@ -82,7 +82,7 @@ const createReducer = <T extends DataType>() => (
         throw new Error(`Invalid column, ${action.columnName} not found`);
       }
 
-      let isAscending = null;
+      let isAscending: boolean | null = null;
 
       let sortedRows: RowType<T>[] = [];
 
@@ -100,20 +100,15 @@ const createReducer = <T extends DataType>() => (
               column.sorted.asc === undefined ? true : !column.sorted.asc;
           }
 
-          if (column.sort) {
-            sortedRows = isAscending
-              ? state.rows.sort(column.sort)
-              : state.rows.sort(column.sort).reverse();
-            // default to sort by string
-          } else {
-            sortedRows = isAscending
-              ? state.rows.sort(
-                  byTextAscending(object => object.original[action.columnName])
-                )
-              : state.rows.sort(
-                  byTextDescending(object => object.original[action.columnName])
-                );
-          }
+          // default to sort by string
+          const columnCompareFn =
+            column.sort ||
+            byTextAscending(object => object.original[action.columnName]);
+          sortedRows = state.rows.sort((a, b) => {
+            const result = columnCompareFn(a, b);
+            return isAscending ? result : result * -1;
+          });
+
           return {
             ...column,
             sorted: {
@@ -371,7 +366,7 @@ const sortByColumn = <T extends DataType>(
   sortColumn: string,
   columns: ColumnStateType<T>[]
 ): RowType<T>[] => {
-  let isAscending = null;
+  let isAscending: boolean | null | undefined = null;
   let sortedRows: RowType<T>[] = [...data];
 
   columns.map(column => {
@@ -379,16 +374,13 @@ const sortByColumn = <T extends DataType>(
     if (sortColumn === column.name) {
       isAscending = column.sorted.asc;
 
-      if (column.sort) {
-        sortedRows = isAscending
-          ? data.sort(column.sort)
-          : data.sort(column.sort).reverse();
-        // default to sort by string
-      } else {
-        sortedRows = isAscending
-          ? data.sort(byTextAscending(object => object.original[sortColumn]))
-          : data.sort(byTextDescending(object => object.original[sortColumn]));
-      }
+      // default to sort by string
+      const columnCompareFn =
+        column.sort || byTextAscending(object => object.original[sortColumn]);
+      sortedRows = data.sort((a, b) => {
+        const result = columnCompareFn(a, b);
+        return isAscending ? result : result * -1;
+      });
     }
   });
 
