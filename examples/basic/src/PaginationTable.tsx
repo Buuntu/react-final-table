@@ -34,7 +34,10 @@ const data = [
 
 export const PaginationTable: FC = () => {
   const memoColumns = useMemo(() => columns, []);
-  const memoData = useMemo(() => [...Array(10).fill(data[0]), ...Array(10).fill(data[1])], []);
+  const memoData = useMemo(
+    () => [...Array(10).fill(data[0]), ...Array(10).fill(data[1])],
+    []
+  );
 
   const { headers, rows, pagination } = useTable<{
     firstName: string;
@@ -53,7 +56,7 @@ export const PaginationTable: FC = () => {
         </thead>
         <tbody>
           {rows.map((row, idx) => (
-            <tr role="table-row" key={idx}>
+            <tr key={idx}>
               {row.cells.map((cell, idx) => (
                 <td key={idx}>{cell.render()}</td>
               ))}
@@ -73,5 +76,5 @@ export const PaginationTable: FC = () => {
         <pre>{JSON.stringify({ rows }, null, 2)}</pre>
       </code>
     </>
-  )
-}
+  );
+};

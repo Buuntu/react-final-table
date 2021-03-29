@@ -64,9 +64,9 @@ npm install react-final-table
 
 ## Demos
 
-### [CodeSandbox Demo](https://codesandbox.io/s/react-final-table-with-selection-zcodc)
+### [Basic Demo](https://githubbox.com/Buuntu/react-final-table/tree/master/examples/basic)
 
-### [Material UI Demo](https://codesandbox.io/s/material-ui-react-final-table-example-sigrz)
+### [Material UI Demo](https://githubbox.com/Buuntu/react-final-table/tree/master/examples/material-ui)
 
 ## `useTable`
 
