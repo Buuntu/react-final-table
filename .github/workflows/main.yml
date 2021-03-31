@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
 
       - name: Install Modules
         run: npm i
@@ -24,7 +26,10 @@ jobs:
 
       - uses: codecov/codecov-action@v1
 
-      - uses: codfish/semantic-release-action@master
+      - uses: cycjimmy/semantic-release-action@v2
+        with:
+          extra_plugins: |
+            @semantic-release/git
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

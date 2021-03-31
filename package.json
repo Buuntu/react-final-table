@@ -1,6 +1,6 @@
 {
   "name": "react-final-table",
-  "version": "1.4.2",
+  "version": "1.5.1",
   "license": "MIT",
   "author": "Gabriel Abud",
   "keywords": [
@@ -35,7 +35,7 @@
     "test": "tsdx test --passWithNoTests",
     "test:watch": "tsdx test --passWithNoTests --watch",
     "test:coverage": "tsdx test --passWithNoTests --collect-coverage",
-    "lint": "tsdx lint",
+    "lint": "tsdx lint src",
     "prepare": "tsdx build",
     "watch": "tsdx watch"
   },
@@ -73,7 +73,7 @@
   "homepage": "https://github.com/Buuntu/react-final-table#readme",
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "tsdx lint src"
     }
   },
   "prettier": {
