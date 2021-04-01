@@ -96,8 +96,7 @@ const createReducer = <T extends DataType>() => (
             isAscending = action.isAscOverride;
           } else {
             // if it's undefined, start by setting to ascending, otherwise toggle
-            isAscending =
-              column.sorted.asc === undefined ? true : !column.sorted.asc;
+            isAscending = column.sorted.asc === undefined || !column.sorted.asc;
           }
 
           // default to sort by string
@@ -136,7 +135,7 @@ const createReducer = <T extends DataType>() => (
       };
     case 'GLOBAL_FILTER':
       const filteredRows = action.filter(state.originalRows);
-      const selectedRowsById: { [key: number]: boolean } = {};
+      const selectedRowsById: Record<number, boolean> = {};
       state.selectedRows.forEach(row => {
         selectedRowsById[row.id] = !!row.selected;
       });
@@ -187,7 +186,7 @@ const createReducer = <T extends DataType>() => (
       return stateCopySearch;
     case 'TOGGLE_ALL':
       const stateCopyToggle = { ...state };
-      const rowIds: { [key: number]: boolean } = {};
+      const rowIds: Record<number, boolean> = {};
 
       const selected = state.selectedRows.length < state.rows.length;
       stateCopyToggle.rows = stateCopyToggle.rows.map(row => {
@@ -223,8 +222,8 @@ export const useTable = <T extends DataType>(
       columns.map(column => {
         return {
           ...column,
-          label: column.label ? column.label : column.name,
-          hidden: column.hidden ? column.hidden : false,
+          label: column.label || column.name,
+          hidden: !!column.hidden,
           sort: column.sort,
           sorted: {
             on: false,
@@ -278,8 +277,8 @@ export const useTable = <T extends DataType>(
       perPage: 10,
       canNext: true,
       canPrev: false,
-      nextPage: () => {},
-      prevPage: () => {},
+      nextPage: /* istanbul ignore next */ () => {},
+      prevPage: /* istanbul ignore next */ () => {},
     },
   });
 
@@ -298,10 +297,9 @@ export const useTable = <T extends DataType>(
   const headers: HeaderType<T>[] = useMemo(() => {
     return [
       ...state.columns.map(column => {
-        const label = column.label ? column.label : column.name;
         return {
           ...column,
-          render: makeHeaderRender(label, column.headerRender),
+          render: makeHeaderRender(column.label, column.headerRender),
         };
       }),
     ];
