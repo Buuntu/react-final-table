@@ -3,6 +3,7 @@
   "version": "1.5.1",
   "license": "MIT",
   "author": "Gabriel Abud",
+  "description": "React hook for headless table components",
   "keywords": [
     "react",
     "hooks",
