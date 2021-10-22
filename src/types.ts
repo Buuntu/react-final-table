@@ -92,7 +92,7 @@ export interface UseTablePropsType<T> {
 export interface UseTableOptionsType<T> {
   sortable?: boolean;
   selectable?: boolean;
-  pagination?: boolean;
+  pagination?: boolean | number;
   filter?: (row: RowType<T>[]) => RowType<T>[];
 }
 
@@ -130,6 +130,9 @@ export type TableState<T extends DataType> = {
   toggleAllState: boolean;
   pagination: PaginatorType;
   paginationEnabled: boolean;
+  unpaginatedRows: RowType<T>[];
+  filter?: (row: RowType<T>[]) => RowType<T>[];
+  searchString: string;
 };
 
 export type TableAction<T extends DataType> =
