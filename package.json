@@ -1,6 +1,6 @@
 {
   "name": "react-final-table",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "license": "MIT",
   "author": "Gabriel Abud",
   "description": "React hook for headless table components",
